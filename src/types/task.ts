@@ -9,6 +9,16 @@ export type Task = {
   id: string;
   title: string;
   description: string;
-  status: TaskStatus;
   priority: number;
+};
+
+export type RuntimeTask = Task & {
+  status: TaskStatus;
+  timestamp: Date;
+};
+
+export type StateChange = {
+  id: string;
+  status: TaskStatus;
+  timestamp: Date;
 };
