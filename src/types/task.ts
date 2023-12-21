@@ -13,6 +13,7 @@ export type Task = {
 };
 
 export type RuntimeTask = Task & {
+  id: string; // required for runtime tasks
   status: TaskStatus;
   timestamp: Date;
 };

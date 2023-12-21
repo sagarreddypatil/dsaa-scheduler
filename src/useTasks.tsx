@@ -49,6 +49,7 @@ export default function useTasks() {
         .filter((stateChange) => stateChange.id === task.id)
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())[0];
       return {
+        id: task.id!, // to account for addTask
         ...task,
         status: stateChange.status,
         timestamp: stateChange.timestamp,
@@ -89,7 +90,7 @@ export default function useTasks() {
 
     if (!currentTask) return;
 
-    addStateChange(currentTask.id!, TaskStatus.READY);
+    addStateChange(currentTask.id, TaskStatus.READY);
   };
 
   const schedule = (taskId: string) => {
