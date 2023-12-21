@@ -1,53 +1,46 @@
 import { useEffect, useMemo, useState } from "react";
 import { RuntimeTask, StateChange, Task, TaskStatus } from "../types/task";
+import { usePbRecords } from "./pocketbase";
 
 export default function useTasks() {
-  const [_tasks, setTasks] = useState<Task[]>([
-    {
-      id: "A",
-      title: "Some task",
-      description:
-        "This is an unreasonably long task description that is for the purposes of testing the layout of this application",
-      priority: 1,
-    },
-    {
-      id: "B",
-      title: "Do this n dat",
-      description: "This is task B",
-      priority: 2,
-    },
-    {
-      id: "C",
-      title: "CS 381 HW",
-      description: "This is task C",
-      priority: 2,
-    },
-  ]); // task table
+  // const [_tasks, setTasks] = useState<Task[]>([]); // task table
+  const [_tasks, _createTask] = usePbRecords<Task>("tasks");
 
-  const [stateChanges, setStateChanges] = useState<StateChange[]>([
-    {
-      id: "C",
-      status: TaskStatus.READY,
-      timestamp: new Date(),
-    },
-    {
-      id: "B",
-      status: TaskStatus.READY,
-      timestamp: new Date(),
-    },
-    {
-      id: "A",
-      status: TaskStatus.READY,
-      timestamp: new Date(),
-    },
-  ]); // state change table
+  // const [stateChanges, setStateChanges] = useState<StateChange[]>([]); // state change table
+  const [_stateChanges, _addStateChange] =
+    usePbRecords<StateChange>("stateChanges");
+
+  const stateChanges = useMemo(() => {
+    if (!_stateChanges) return [] as StateChange[];
+
+    // convert timestamp to Date
+    return _stateChanges.map((stateChange) => {
+      return {
+        ...stateChange,
+        timestamp: new Date(stateChange.timestamp),
+      };
+    });
+  }, [_stateChanges]);
 
   const tasks: RuntimeTask[] = useMemo(() => {
+    if (!_tasks) return [] as RuntimeTask[];
+
     // for each task, get the latest state change
     return _tasks.map((task) => {
       const stateChange = stateChanges
-        .filter((stateChange) => stateChange.id === task.id)
+        .filter((stateChange) => stateChange.task === task.id)
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())[0];
+
+      if (!stateChange) {
+        // shouldn't happen, but does. weird transient
+        return {
+          id: task.id!,
+          ...task,
+          status: TaskStatus.READY,
+          timestamp: new Date(),
+        };
+      }
+
       return {
         id: task.id!, // to account for addTask
         ...task,
@@ -55,7 +48,7 @@ export default function useTasks() {
         timestamp: stateChange.timestamp,
       };
     });
-  }, [_tasks, stateChanges]);
+  }, [stateChanges]);
 
   const readyList = useMemo(() => {
     return tasks
@@ -77,46 +70,35 @@ export default function useTasks() {
   }, [tasks]);
 
   const addStateChange = (taskId: string, status: TaskStatus) => {
-    setStateChanges((stateChanges) => {
-      return [
-        ...stateChanges,
-        { id: taskId, status: status, timestamp: new Date() } as StateChange,
-      ];
+    return _addStateChange({
+      task: taskId,
+      status: status,
+      timestamp: new Date(),
     });
   };
 
   const evict = () => {
     // make current task ready
 
-    if (!currentTask) return;
-
-    addStateChange(currentTask.id, TaskStatus.READY);
+    if (!currentTask) return Promise.resolve();
+    return addStateChange(currentTask.id, TaskStatus.READY);
   };
 
   const schedule = (taskId: string) => {
     const task = tasks.find((task) => task.id === taskId);
     if (!task) return;
 
-    evict();
-    addStateChange(taskId, TaskStatus.CURRENT);
+    return evict()?.then(() => addStateChange(taskId, TaskStatus.CURRENT));
+  };
+
+  const finish = (taskId: string) => {
+    // mark task as finished
+    return evict()?.then(() => addStateChange(taskId, TaskStatus.DONE));
   };
 
   const addTask = (task: Task) => {
-    const newTask: Task = {
-      id: Math.random().toString(36).substring(2),
-      ...task,
-    };
-
-    setTasks((tasks) => [...tasks, newTask]);
-    addStateChange(newTask.id!, TaskStatus.READY);
-  };
-
-  const editTask = (task: Task) => {
-    setTasks((tasks) => {
-      const toEdit = tasks.find((t) => t.id === task.id);
-      if (!toEdit) return tasks;
-
-      return tasks.map((t) => (t.id === task.id ? task : t));
+    return _createTask(task).then((newTask) => {
+      if (newTask && newTask.id) addStateChange(newTask.id, TaskStatus.READY);
     });
   };
 
@@ -126,7 +108,7 @@ export default function useTasks() {
     currentTask,
     schedule,
     evict,
+    finish,
     addTask,
-    editTask,
   };
 }

@@ -6,6 +6,7 @@ import "./index.css";
 import TaskList from "./pages/task-list.tsx";
 import Task from "./pages/task.tsx";
 import CreateTask from "./pages/create-task.tsx";
+import Login from "./Login.tsx";
 
 const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
         element: <CreateTask />,
       },
     ],
+  },
+  {
+    path: "/login",
+    element: <Login />,
   },
 ]);
 

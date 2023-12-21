@@ -2,13 +2,14 @@ import React, { forwardRef } from "react";
 
 type TextboxProps = {
   placeholder?: string;
+  password?: boolean;
   type?: string;
   value?: string;
   onChange?: (value: string) => void;
 };
 
 const Textbox = forwardRef<HTMLInputElement, TextboxProps>(
-  ({ placeholder, type, value, onChange }, ref) => {
+  ({ placeholder, password, type, value, onChange }, ref) => {
     return (
       <input
         ref={ref}

@@ -2,9 +2,10 @@ import { useNavigate } from "react-router-dom";
 import TaskCard from "../components/task-card";
 import Button from "../controls/button";
 import useTasks from "../hooks/useTasks";
+import { TaskStatus } from "../types/task";
 
 export default function TaskList() {
-  const { tasks, readyList, currentTask, schedule, evict } = useTasks();
+  const { tasks, readyList, currentTask, schedule, evict, finish } = useTasks();
   const navigate = useNavigate();
 
   return (
@@ -16,7 +17,12 @@ export default function TaskList() {
         <>
           <h2 className="text-2xl font-bold">Current Task</h2>
           <hr className="border-gray-500" />
-          <TaskCard task={currentTask} evict={evict} current={true} />
+          <TaskCard
+            task={currentTask}
+            evict={evict}
+            current={true}
+            finish={() => finish(currentTask.id)}
+          />
           <div className="h-2"></div>
         </>
       )}
@@ -30,6 +36,22 @@ export default function TaskList() {
             task={task}
             key={task.id}
             schedule={() => schedule(taskId)}
+            finish={() => finish(taskId)}
+            current={false}
+          />
+        );
+      })}
+      <div className="h-2"></div>
+      <h2 className="text-2xl font-bold">Done</h2>
+      <hr className="border-gray-500" />
+      {tasks.map((task) => {
+        if (!task) return;
+        if (task.status !== TaskStatus.DONE) return;
+        return (
+          <TaskCard
+            task={task}
+            key={task.id}
+            schedule={() => schedule(task.id)}
             current={false}
           />
         );

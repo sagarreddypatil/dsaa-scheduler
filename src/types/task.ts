@@ -19,7 +19,8 @@ export type RuntimeTask = Task & {
 };
 
 export type StateChange = {
-  id: string;
+  id?: string; // useless
+  task: string;
   status: TaskStatus;
   timestamp: Date;
 };

@@ -16,12 +16,14 @@ export default function TaskCard({
   task,
   className,
   current,
+  finish,
   schedule,
   evict,
 }: {
   task: RuntimeTask;
   className?: string;
   current: boolean;
+  finish?: () => void;
   schedule?: () => void;
   evict?: () => void;
 }) {
@@ -64,10 +66,20 @@ export default function TaskCard({
         </p>
       </TaskButton>
       <div className="flex-none">
+        {finish && (
+          <Button
+            onClick={finish}
+            className="bg-green-300 h-full w-24 shadow-none"
+          >
+            Finish
+          </Button>
+        )}
+      </div>
+      <div className="flex-none">
         {schedule && (
           <Button
             onClick={schedule}
-            className="bg-green-300 h-full w-24 shadow-none"
+            className="bg-blue-300 h-full w-24 shadow-none"
           >
             Schedule
           </Button>
