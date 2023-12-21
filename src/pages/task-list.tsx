@@ -5,7 +5,15 @@ import useTasks from "../hooks/useTasks";
 import { TaskStatus } from "../types/task";
 
 export default function TaskList() {
-  const { tasks, readyList, currentTask, schedule, evict, finish } = useTasks();
+  const {
+    tasks,
+    readyList,
+    currentTask,
+    schedule,
+    evict,
+    finish,
+    addStateChange,
+  } = useTasks();
   const navigate = useNavigate();
 
   return (
@@ -52,6 +60,7 @@ export default function TaskList() {
             task={task}
             key={task.id}
             schedule={() => schedule(task.id)}
+            resurrect={() => addStateChange(task.id, TaskStatus.READY)}
             current={false}
           />
         );

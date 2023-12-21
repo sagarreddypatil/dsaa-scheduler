@@ -109,6 +109,7 @@ export default function useTasks() {
     schedule,
     evict,
     finish,
+    addStateChange,
     addTask,
   };
 }

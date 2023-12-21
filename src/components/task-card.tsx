@@ -19,6 +19,7 @@ export default function TaskCard({
   finish,
   schedule,
   evict,
+  resurrect,
 }: {
   task: RuntimeTask;
   className?: string;
@@ -26,6 +27,7 @@ export default function TaskCard({
   finish?: () => void;
   schedule?: () => void;
   evict?: () => void;
+  resurrect?: () => void;
 }) {
   const navigate = useNavigate();
 
@@ -72,6 +74,14 @@ export default function TaskCard({
             className="bg-green-300 h-full w-24 shadow-none"
           >
             Finish
+          </Button>
+        )}
+        {resurrect && (
+          <Button
+            onClick={resurrect}
+            className="bg-gray-300 h-full w-24 shadow-none"
+          >
+            Resurrect
           </Button>
         )}
       </div>

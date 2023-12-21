@@ -49,7 +49,9 @@ export function usePbRecords<Type extends RecordBase>(collection: string) {
   const createRecord = (record: Type) => {
     return pb
       .collection(collection)
-      .create<Type>(record as { [key: string]: any })
+      .create<Type>({ ...record, user: pb.authStore.model!.id } as {
+        [key: string]: any;
+      })
       .catch((err) => {
         console.error(err);
       });
