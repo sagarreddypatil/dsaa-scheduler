@@ -28,7 +28,6 @@ export default function TaskList() {
           <TaskCard
             task={currentTask}
             evict={evict}
-            current={true}
             finish={() => finish(currentTask.id)}
           />
           <div className="h-2"></div>
@@ -45,7 +44,6 @@ export default function TaskList() {
             key={task.id}
             schedule={() => schedule(taskId)}
             finish={() => finish(taskId)}
-            current={false}
           />
         );
       })}
@@ -61,7 +59,6 @@ export default function TaskList() {
             key={task.id}
             schedule={() => schedule(task.id)}
             resurrect={() => addStateChange(task.id, TaskStatus.READY)}
-            current={false}
           />
         );
       })}

@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskCard from "../components/task-card";
-import { TaskStatus, defaultTaskColor } from "../types/task";
+import { defaultTaskColor } from "../types/task";
 import { HexColorPicker } from "react-colorful";
 import { useEffect, useState } from "react";
 import { useDebounce } from "usehooks-ts";
@@ -30,7 +30,7 @@ export default function Task() {
 
   return (
     <div className="flex flex-col gap-3">
-      <TaskCard task={task} current={task.status == TaskStatus.CURRENT} />
+      <TaskCard task={task} />
       <div className="h-2"></div>
       <h2 className="text-2xl font-bold">Description</h2>
       {task.description}
