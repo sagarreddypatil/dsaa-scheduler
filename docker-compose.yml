@@ -1,15 +1,13 @@
 version: "3"
 
 services:
-  pspiechart:
-    build:
-      context: ./pspiechart
-      args:
-        VITE_SENSORNET_SERVER: sensornet.localhost
-        VITE_CMDNET_SERVER: cmdnet.localhost
+  pocketbase:
+    build: ./pocketbase
     ports:
-      - 4173:4173
+      - 8093:8093
+    volumes:
+      - ./data/pocketbase:/pb/pb_data
+      - ./pocketbase/migrations:/pb/pb_migrations
     environment:
-      - VIRTUAL_HOST=pspc.*
-      - VIRTUAL_PORT=4173
-    restart: always
+      - VIRTUAL_HOST=pb.*
+      - VIRTUAL_PORT=8093
