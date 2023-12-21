@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import TaskCard from "../components/task-card";
 import Button from "../controls/button";
-import useTasks from "../useTasks";
+import useTasks from "../hooks/useTasks";
 
 export default function TaskList() {
   const { tasks, readyList, currentTask, schedule, evict } = useTasks();

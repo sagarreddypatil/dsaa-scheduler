@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import useTasks from "../useTasks";
+import useTasks from "../hooks/useTasks";
 import TaskCard from "../components/task-card";
 import { TaskStatus } from "../types/task";
 

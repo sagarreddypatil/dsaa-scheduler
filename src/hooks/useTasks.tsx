@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { RuntimeTask, StateChange, Task, TaskStatus } from "./types/task";
+import { RuntimeTask, StateChange, Task, TaskStatus } from "../types/task";
 
 export default function useTasks() {
   const [_tasks, setTasks] = useState<Task[]>([
