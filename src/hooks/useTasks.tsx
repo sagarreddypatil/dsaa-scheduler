@@ -108,6 +108,7 @@ export default function useTasks() {
 
   return {
     tasks,
+    stateChanges,
     readyList,
     currentTask,
     schedule,

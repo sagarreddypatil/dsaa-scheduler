@@ -37,9 +37,20 @@ export default function CreateTask() {
         className="p-2 border border-black rounded-none text-lg"
       />
       <Textbox placeholder="Priority" ref={priorityRef} type="number" />
-      <Button className="text-2xl py-1 bg-green-300" onClick={createTask}>
-        Create
-      </Button>
+      <div className="flex flex-row gap-4">
+        <Button
+          className="font-bold py-1 bg-green-300 flex-1"
+          onClick={createTask}
+        >
+          Create
+        </Button>
+        <Button
+          className="h-10 flex-1 bg-gray-300"
+          onClick={() => navigate("/")}
+        >
+          Cancel
+        </Button>
+      </div>
     </div>
   );
 }

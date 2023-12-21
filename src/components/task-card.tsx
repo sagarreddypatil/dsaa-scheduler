@@ -99,12 +99,7 @@ export default function TaskCard({
       case TaskStatus.READY:
         return <div className="flex flex-col h-10">{scheduleButton}</div>;
       case TaskStatus.CURRENT:
-        return (
-          <div className="flex flex-col h-20">
-            {finishButton}
-            {evictButton}
-          </div>
-        );
+        return <div className="flex flex-col h-10">{finishButton}</div>;
       case TaskStatus.DONE:
         return <div className="flex flex-col h-10">{resurrectButton}</div>;
       default:
@@ -124,10 +119,10 @@ export default function TaskCard({
 
   return (
     <div
-      className={`border border-black ${className} flex shadow-[5px_5px_0px_1px_rgba(0,0,0,0.5)]`}
+      className={`border border-black ${className} flex shadow-[3px_3px_0px_1px_rgba(0,0,0,0.5)]`}
     >
       <TaskButton
-        className={`flex-none text-2xl w-12 text-center flex flex-col justify-center border-r border-black`}
+        className="flex-none text-2xl w-12 text-center flex items-center justify-center border-r border-black"
         style={{ backgroundColor: color }}
       >
         {task.priority}

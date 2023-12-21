@@ -18,21 +18,40 @@ export default function TaskList() {
 
   return (
     <div className="flex flex-col gap-3">
-      <Button className="h-8 bg-purple-300" onClick={() => navigate("/create")}>
-        + Create Task
-      </Button>
-      {currentTask && (
-        <>
-          <h2 className="text-2xl font-bold">Current Task</h2>
-          <hr className="border-gray-500" />
-          <TaskCard
-            task={currentTask}
-            evict={evict}
-            finish={() => finish(currentTask.id)}
-          />
-          <div className="h-2"></div>
-        </>
+      <div className="grid grid-cols-2 gap-4">
+        <Button
+          className="h-10 bg-purple-300 flex-1"
+          onClick={() => navigate("/create")}
+        >
+          + Create Task
+        </Button>
+        <Button className="h-10 bg-green-300 flex-1" onClick={() => evict()}>
+          Idle
+        </Button>
+      </div>
+      <h2 className="text-2xl font-bold">Current Task</h2>
+      <hr className="border-gray-500" />
+      {currentTask ? (
+        <TaskCard
+          task={currentTask}
+          evict={evict}
+          finish={() => finish(currentTask.id)}
+        />
+      ) : (
+        // there's always a current task
+        <TaskCard
+          task={{
+            id: "idle",
+            title: "Idle",
+            description: "",
+            priority: 0,
+            status: TaskStatus.CURRENT,
+            timestamp: new Date(),
+            color: "#fff",
+          }}
+        />
       )}
+      <div className="h-2"></div>
       <h2 className="text-2xl font-bold">Ready to do</h2>
       <hr className="border-gray-500" />
       {readyList.map((taskId) => {
