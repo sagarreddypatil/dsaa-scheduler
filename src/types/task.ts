@@ -6,7 +6,7 @@ export enum TaskStatus {
 }
 
 export type Task = {
-  id: string;
+  id?: string; // optional for new tasks
   title: string;
   description: string;
   priority: number;

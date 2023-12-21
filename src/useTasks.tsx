@@ -42,10 +42,6 @@ export default function useTasks() {
     },
   ]); // state change table
 
-  useEffect(() => {
-    console.log(stateChanges);
-  }, [stateChanges]);
-
   const tasks: RuntimeTask[] = useMemo(() => {
     // for each task, get the latest state change
     return _tasks.map((task) => {
@@ -93,7 +89,7 @@ export default function useTasks() {
 
     if (!currentTask) return;
 
-    addStateChange(currentTask.id, TaskStatus.READY);
+    addStateChange(currentTask.id!, TaskStatus.READY);
   };
 
   const schedule = (taskId: string) => {
@@ -104,11 +100,32 @@ export default function useTasks() {
     addStateChange(taskId, TaskStatus.CURRENT);
   };
 
+  const addTask = (task: Task) => {
+    const newTask: Task = {
+      id: Math.random().toString(36).substring(2),
+      ...task,
+    };
+
+    setTasks((tasks) => [...tasks, newTask]);
+    addStateChange(newTask.id!, TaskStatus.READY);
+  };
+
+  const editTask = (task: Task) => {
+    setTasks((tasks) => {
+      const toEdit = tasks.find((t) => t.id === task.id);
+      if (!toEdit) return tasks;
+
+      return tasks.map((t) => (t.id === task.id ? task : t));
+    });
+  };
+
   return {
     tasks,
     readyList,
     currentTask,
     schedule,
     evict,
+    addTask,
+    editTask,
   };
 }
