@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import TaskCard from "../components/task-card";
-import Button from "../controls/button";
+import { Button } from "../controls/button";
 import useTasks from "../hooks/useTasks";
 import { TaskStatus } from "../types/task";
 

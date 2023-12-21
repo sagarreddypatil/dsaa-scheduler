@@ -5,10 +5,13 @@ export enum TaskStatus {
   DONE = "DONE",
 }
 
+export const defaultTaskColor = "#93c5fd";
+
 export type Task = {
   id?: string; // optional for new tasks
   title: string;
   description: string;
+  color?: string;
   priority: number;
 };
 

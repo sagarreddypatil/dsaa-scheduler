@@ -3,7 +3,7 @@ import PocketBase from "pocketbase";
 export const pb = new PocketBase("http://localhost:8093");
 pb.autoCancellation(false);
 
-import Button from "./controls/button";
+import { Submit } from "./controls/button";
 import Textbox from "./controls/textbox";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +20,9 @@ export default function Login() {
     }
   });
 
-  const login = () => {
+  const login = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     const username = usernameRef.current!.value;
     const password = passwordRef.current!.value;
 
@@ -28,17 +30,24 @@ export default function Login() {
       .authWithPassword(username, password)
       .then(() => {
         if (pb.authStore.isValid) {
+          console.log("login success");
           navigate("/");
         }
+      })
+      .catch((err) => {
+        console.log(err);
       });
   };
 
   return (
-    <div className="my-4 max-w-xl mx-auto flex flex-col gap-2">
+    <form
+      className="my-4 max-w-xl mx-auto flex flex-col gap-2 p-2"
+      onSubmit={login}
+    >
       <span className="text-2xl">Login</span>
       <Textbox placeholder="Username/Email" ref={usernameRef} />
       <Textbox placeholder="Password" type="password" ref={passwordRef} />
-      <Button onClick={login}>Login</Button>
-    </div>
+      <Submit>Login</Submit>
+    </form>
   );
 }

@@ -1,7 +1,7 @@
 import { Outlet, useNavigate, useNavigation } from "react-router-dom";
 import { pb } from "./Login";
 import { useEffect } from "react";
-import Button from "./controls/button";
+import { Button } from "./controls/button";
 
 export default function App() {
   const navigation = useNavigation();
@@ -20,7 +20,7 @@ export default function App() {
   };
 
   return (
-    <div className="my-4 max-w-xl mx-auto">
+    <div className="my-4 max-w-xl mx-auto px-2">
       <div className="flex flex-row justify-between mb-2">
         <button className="text-2xl" onClick={() => navigate("/")}>
           schd

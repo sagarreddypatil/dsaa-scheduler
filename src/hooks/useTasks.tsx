@@ -4,7 +4,7 @@ import { usePbRecords } from "./pocketbase";
 
 export default function useTasks() {
   // const [_tasks, setTasks] = useState<Task[]>([]); // task table
-  const [_tasks, _createTask] = usePbRecords<Task>("tasks");
+  const [_tasks, _createTask, _updateTask] = usePbRecords<Task>("tasks");
 
   // const [stateChanges, setStateChanges] = useState<StateChange[]>([]); // state change table
   const [_stateChanges, _addStateChange] =
@@ -93,13 +93,17 @@ export default function useTasks() {
 
   const finish = (taskId: string) => {
     // mark task as finished
-    return evict()?.then(() => addStateChange(taskId, TaskStatus.DONE));
+    return addStateChange(taskId, TaskStatus.DONE);
   };
 
   const addTask = (task: Task) => {
     return _createTask(task).then((newTask) => {
       if (newTask && newTask.id) addStateChange(newTask.id, TaskStatus.READY);
     });
+  };
+
+  const updateTask = (task: Task) => {
+    return _updateTask(task);
   };
 
   return {
@@ -111,5 +115,6 @@ export default function useTasks() {
     finish,
     addStateChange,
     addTask,
+    updateTask,
   };
 }

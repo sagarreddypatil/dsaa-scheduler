@@ -1,21 +1,30 @@
 import { useNavigate } from "react-router-dom";
-import Button from "../controls/button";
-import { RuntimeTask } from "../types/task";
+import { Button } from "../controls/button";
+import { RuntimeTask, TaskStatus, defaultTaskColor } from "../types/task";
+import { twMerge } from "tailwind-merge";
 
-function TaskColorButton({
+function ActionButton({
   children,
   className,
+  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }) {
-  return <button className={className}>{children}</button>;
+  return (
+    <Button
+      onClick={onClick}
+      className={twMerge("h-full w-24 shadow-none", className)}
+    >
+      {children}
+    </Button>
+  );
 }
 
 export default function TaskCard({
   task,
   className,
-  current,
   finish,
   schedule,
   evict,
@@ -23,7 +32,6 @@ export default function TaskCard({
 }: {
   task: RuntimeTask;
   className?: string;
-  current: boolean;
   finish?: () => void;
   schedule?: () => void;
   evict?: () => void;
@@ -32,14 +40,17 @@ export default function TaskCard({
   const navigate = useNavigate();
 
   const TaskButton = ({
+    style,
     children,
     className,
   }: {
+    style?: React.CSSProperties;
     children: React.ReactNode;
     className?: string;
   }) => {
     return (
       <button
+        style={style}
         onClick={() => navigate(`/task/${task.id}`)}
         className={className}
       >
@@ -48,61 +59,93 @@ export default function TaskCard({
     );
   };
 
+  const finishButton = finish ? (
+    <ActionButton onClick={finish} className="bg-green-300">
+      Finish
+    </ActionButton>
+  ) : (
+    <></>
+  );
+
+  const resurrectButton = resurrect ? (
+    <ActionButton onClick={resurrect} className="bg-gray-300">
+      Resurrect
+    </ActionButton>
+  ) : (
+    <></>
+  );
+
+  const scheduleButton = schedule ? (
+    <ActionButton onClick={schedule} className="bg-blue-300">
+      Schedule
+    </ActionButton>
+  ) : (
+    <></>
+  );
+
+  const evictButton = evict ? (
+    <ActionButton onClick={evict} className="bg-red-300">
+      Evict
+    </ActionButton>
+  ) : (
+    <></>
+  );
+
+  const anyButtons = finish || schedule || evict || resurrect;
+
+  const renderButtons = () => {
+    if (!anyButtons) return <></>;
+    switch (task.status) {
+      case TaskStatus.READY:
+        return <div className="flex flex-col h-10">{scheduleButton}</div>;
+      case TaskStatus.CURRENT:
+        return (
+          <div className="flex flex-col h-20">
+            {finishButton}
+            {evictButton}
+          </div>
+        );
+      case TaskStatus.DONE:
+        return <div className="flex flex-col h-10">{resurrectButton}</div>;
+      default:
+        return <></>;
+    }
+  };
+
+  const color =
+    task.color == null || task.color == "" ? defaultTaskColor : task.color;
+
+  const statusColors = {
+    [TaskStatus.READY]: "",
+    [TaskStatus.CURRENT]: "bg-orange-300",
+    [TaskStatus.DONE]: "bg-gray-400",
+    [TaskStatus.SLEEP]: "bg-yellow-300",
+  };
+
   return (
     <div
       className={`border border-black ${className} flex shadow-[5px_5px_0px_1px_rgba(0,0,0,0.5)]`}
     >
-      <TaskColorButton
-        className={`flex-none ${
-          current ? "bg-yellow-400" : "bg-blue-300"
-        } text-2xl w-12 text-center flex flex-col justify-center border-r border-black`}
+      <TaskButton
+        className={`flex-none text-2xl w-12 text-center flex flex-col justify-center border-r border-black`}
+        style={{ backgroundColor: color }}
       >
         {task.priority}
-      </TaskColorButton>
-      <TaskButton className="flex-none ps-2 pe-2 py-1">
-        <h2 className="text-2xl font-bold">{task.title}</h2>
       </TaskButton>
-      <TaskButton className="flex-auto flex items-center overflow-hidden pe-1">
-        <p className="text-ellipsis overflow-hidden whitespace-nowrap">
-          {task.description}
-        </p>
+      <TaskButton
+        className={`flex-1 ps-2 pe-2 py-1 overflow-hidden ${
+          statusColors[task.status]
+        }`}
+      >
+        <h2
+          className={`text-2xl font-bold ${
+            anyButtons ? "overflow-hidden whitespace-nowrap text-ellipsis" : ""
+          }`}
+        >
+          {task.title}
+        </h2>
       </TaskButton>
-      <div className="flex-none">
-        {finish && (
-          <Button
-            onClick={finish}
-            className="bg-green-300 h-full w-24 shadow-none"
-          >
-            Finish
-          </Button>
-        )}
-        {resurrect && (
-          <Button
-            onClick={resurrect}
-            className="bg-gray-300 h-full w-24 shadow-none"
-          >
-            Resurrect
-          </Button>
-        )}
-      </div>
-      <div className="flex-none">
-        {schedule && (
-          <Button
-            onClick={schedule}
-            className="bg-blue-300 h-full w-24 shadow-none"
-          >
-            Schedule
-          </Button>
-        )}
-        {evict && (
-          <Button
-            className="bg-red-300 h-full w-24 shadow-none"
-            onClick={evict}
-          >
-            Evict
-          </Button>
-        )}
-      </div>
+      {renderButtons()}
     </div>
   );
 }

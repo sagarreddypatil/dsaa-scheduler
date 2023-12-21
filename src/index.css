@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.task-color-picker {
+    width: 100% !important;
+    border: 1px solid #000000;
+
+    /* apply shadow tailwind */
+    /* @apply shadow-[3px_3px_0px_1px_rgba(0, 0, 0, 0.5)]; */
+
+    box-shadow: 3px 3px 0px 1px rgba(0, 0, 0, 0.5);
+}
+
+.task-color-picker .react-colorful__saturation {
+    border-radius: 0px 0px 0 0;
+}
+
+.task-color-picker .react-colorful__saturation-pointer {
+    width: 12px;
+    height: 12px;
+    border-radius: 0;
+}
+
+.task-color-picker .react-colorful__hue {
+    border-radius: 0px 0px 0 0;
+}
+
+.task-color-picker .react-colorful__hue-pointer {
+    width: 1px;
+    height: 12px;
+    border-radius: 0;
+}
