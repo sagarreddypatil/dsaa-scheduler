@@ -7,6 +7,9 @@
       "DOM",
       "DOM.Iterable"
     ],
+    "types": [
+      "vite-plugin-pwa/client"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     /* Bundler mode */
@@ -24,6 +27,9 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/sw.ts"
   ],
   "references": [
     {

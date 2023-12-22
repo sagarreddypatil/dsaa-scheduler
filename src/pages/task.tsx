@@ -48,8 +48,8 @@ export default function Task() {
     .filter((change) => change.task === task.id)
     .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
-  const oldestChange = taskChanges[taskChanges.length - 1];
-  const latestChange = taskChanges[0];
+  const oldestChange = taskChanges[0];
+  const latestChange = taskChanges[taskChanges.length - 1];
 
   let timeSpent = 0;
   let previousChange = oldestChange;
@@ -73,7 +73,7 @@ export default function Task() {
 
   const totalInterval =
     latestChange.timestamp.getTime() - oldestChange.timestamp.getTime();
-  const daysSpent = Math.ceil(timeSpent / (1000 * 60 * 60 * 24));
+  const daysSpent = Math.ceil(totalInterval / (1000 * 60 * 60 * 24));
 
   const timePerDay = Math.round(timeSpent / daysSpent);
   const timePerWeek = timePerDay * 7;
@@ -88,12 +88,15 @@ export default function Task() {
       {task.description}
       <h2 className="text-2xl font-bold">Statistics</h2>
       You started this task at {oldestChange.timestamp.toLocaleString()}
-      <br />
-      You last worked on this task at {latestChange.timestamp.toLocaleString()}
-      <br />
-      You've spent {prettyDuration} on this task.
-      <br />
-      On average, that's {timePerWeekPretty} per week.
+      <div className="-my-1" />
+      {task.status === TaskStatus.CURRENT
+        ? "You are currently working on this task"
+        : `You last worked on this task at ${latestChange.timestamp.toLocaleString()}`}
+      <div className="-my-1" />
+      You've spent {prettyDuration} on this task, over the course of {daysSpent}{" "}
+      day{daysSpent !== 1 ? "s" : ""}
+      <div className="-my-1" />
+      On average, that's {timePerWeekPretty} per week
       <h2 className="text-2xl font-bold">Pick Color</h2>
       <HexColorPicker
         className="task-color-picker"
