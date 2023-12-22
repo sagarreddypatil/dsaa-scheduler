@@ -6,9 +6,9 @@ services:
     ports:
       - 8093:8093
     volumes:
-      - ./data/pocketbase:/pb/pb_data
+      - ./pb_data:/pb/pb_data
       - ./pb_migrations:/pb/pb_migrations
-      - ./pb_hooks:/pb/pb_hooks
+      # - ./pb_hooks:/pb/pb_hooks
     environment:
       - VIRTUAL_HOST=pb.*
       - VIRTUAL_PORT=8093

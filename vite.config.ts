@@ -8,7 +8,15 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
-      manifest: {},
+      manifest: {
+        name: "dsaa schd",
+        short_name: "schd",
+        description: "Personal task scheduler",
+        background_color: "#ffffff",
+        theme_color: "#ffffff",
+        display: "standalone",
+        orientation: "portrait",
+      },
 
       injectRegister: null,
       srcDir: "src",

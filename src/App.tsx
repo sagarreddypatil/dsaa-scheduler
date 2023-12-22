@@ -6,6 +6,28 @@ import { Button } from "./controls/button";
 const VAPID_PUBLIC_KEY =
   "BAhQEypP3kzKm0J5Rqpb8EgW3UHni-9A-M5IrELV1OjS0QWkNleCv94BvDiCgMk2QZHz3Jt8M5q5s8ErlsZdG8M";
 
+function isIOS() {
+  return false;
+  const browserInfo = navigator.userAgent.toLowerCase();
+
+  if (browserInfo.match("iphone") || browserInfo.match("ipad")) {
+    return true;
+  }
+  if (
+    [
+      "iPad Simulator",
+      "iPhone Simulator",
+      "iPod Simulator",
+      "iPad",
+      "iPhone",
+      "iPod",
+    ].includes(navigator.platform)
+  ) {
+    return true;
+  }
+  return false;
+}
+
 export default function App() {
   const navigation = useNavigation();
   const navigate = useNavigate();
@@ -25,7 +47,7 @@ export default function App() {
   };
 
   const [showNotifyPrompt, setShowNotifyPrompt] = useState(
-    Notification.permission !== "granted"
+    isIOS() ? false : Notification.permission !== "granted"
   );
 
   useEffect(() => {
@@ -90,6 +112,7 @@ export default function App() {
         <Button
           className="mt-2 w-full h-10 font-bold text-2xl bg-red-300"
           onClick={() => {
+            if (isIOS()) return;
             Notification.requestPermission().then((result) => {
               if (result === "granted") {
                 setShowNotifyPrompt(false);
@@ -97,7 +120,8 @@ export default function App() {
             });
           }}
         >
-          Enable Notifications
+          {/* Enable Notifications */}
+          {Notification.permission}
         </Button>
       )}
       <br className="h-2" />
