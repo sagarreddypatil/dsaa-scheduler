@@ -1,6 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  createHashRouter,
+  RouterProvider,
+} from "react-router-dom";
 import App from "./App.tsx";
 import "./index.css";
 import TaskList from "./pages/task-list.tsx";
@@ -9,7 +13,7 @@ import CreateTask from "./pages/create-task.tsx";
 import Login from "./Login.tsx";
 import ApiToken from "./pages/api-token.tsx";
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: "/",
     element: <App />,
