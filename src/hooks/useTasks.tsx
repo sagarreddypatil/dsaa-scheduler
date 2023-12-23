@@ -27,28 +27,14 @@ export default function useTasks() {
 
     // for each task, get the latest state change
     return _tasks.map((task) => {
-      const stateChange = stateChanges
-        .filter((stateChange) => stateChange.task === task.id)
-        .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())[0];
-
-      if (!stateChange) {
-        // shouldn't happen, but does. weird transient
-        return {
-          id: task.id!,
-          ...task,
-          status: TaskStatus.READY,
-          timestamp: new Date(),
-        };
-      }
-
       return {
-        id: task.id!, // to account for addTask
+        id: task.id!,
         ...task,
-        status: stateChange.status,
-        timestamp: stateChange.timestamp,
+        status: task.status!,
+        timestamp: new Date(task.timestamp!),
       };
     });
-  }, [stateChanges]);
+  }, [_tasks]);
 
   const readyList = useMemo(() => {
     return tasks

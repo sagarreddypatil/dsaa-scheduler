@@ -13,6 +13,8 @@ export type Task = {
   description: string;
   color?: string;
   priority: number;
+  status?: TaskStatus;
+  timestamp?: Date;
 };
 
 export type RuntimeTask = Task & {

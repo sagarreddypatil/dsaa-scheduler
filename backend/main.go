@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -17,9 +18,11 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/plugins/ghupdate"
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
+	"github.com/pocketbase/pocketbase/tools/types"
 
 	webpush "github.com/SherClockHolmes/webpush-go"
 )
@@ -138,10 +141,40 @@ func main() {
 		return nil
 	})
 
+	// --------------------------- Custom Code ---------------------------
+
+	RequireAPIToken := func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			auth := c.Request().Header.Get("Authorization")
+
+			authSplit := strings.Split(auth, "Bearer ")
+			if len(authSplit) != 2 {
+				return apis.NewUnauthorizedError("Missing Bearer Prefix", nil)
+			}
+
+			token := authSplit[1]
+
+			// find user by token
+			user, err := app.Dao().FindFirstRecordByData("users", "apiToken", token)
+			if err != nil {
+				return apis.NewUnauthorizedError("Error retrieving user", nil)
+			}
+			if user == nil {
+				return apis.NewUnauthorizedError("Invalid API token", nil)
+			}
+
+			// set user in context
+			// apis.RequestInfo(c).AuthRecord = user
+			c.Set(apis.ContextAuthRecordKey, user)
+
+			return next(c)
+		}
+	}
+
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+
 		e.Router.GET("/api/v1/token", func(c echo.Context) error {
-			info := apis.RequestInfo(c)
-			record := info.AuthRecord
+			record := apis.RequestInfo(c).AuthRecord
 
 			// create new token, write it to record and return
 			token, err := GenerateRandomToken()
@@ -160,6 +193,66 @@ func main() {
 			})
 		}, apis.RequireRecordAuth())
 
+		e.Router.GET("/api/v1/evict", func(c echo.Context) error {
+			record := apis.RequestInfo(c).AuthRecord
+
+			// get all state changes of this user
+			stateChangesCollection, err := app.Dao().FindCollectionByNameOrId("stateChanges")
+			// tasksCollection, err := app.Dao().FindCollectionByNameOrId("tasks")
+			if err != nil {
+				return err
+			}
+
+			log.Print("record: ", record)
+
+			filter := fmt.Sprintf("user = '%s'", record.Id)
+
+			tasks, err := app.Dao().FindRecordsByFilter(
+				"tasks",
+				filter,
+				"",
+				-1,
+				-1,
+			)
+			if err != nil {
+				return err
+			}
+
+			// for each task, if it's current, evict it
+			for _, task := range tasks {
+				if task.GetString("status") != "CURRENT" {
+					continue
+				}
+
+				newTime := types.NowDateTime()
+
+				newStateChange := models.NewRecord(stateChangesCollection)
+				newStateChange.Set("task", task.Id)
+				newStateChange.Set("status", "READY")
+				newStateChange.Set("timestamp", newTime)
+				err = app.Dao().SaveRecord(newStateChange)
+
+				if err != nil {
+					return err
+				}
+
+				// update the task itself
+				task.Set("status", "READY")
+				task.Set("timestamp", newTime)
+				err = app.Dao().SaveRecord(task)
+
+				if err != nil {
+					return err
+				}
+			}
+
+			return c.JSON(200, map[string]interface{}{
+				"message": "Success",
+			})
+		}, RequireAPIToken)
+
+		// --------------------------- End Custom Code ---------------------------
+
 		// serves static files from the provided public dir (if exists)
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS(publicDir), indexFallback))
 		return nil
@@ -173,6 +266,24 @@ func main() {
 	VAPIDPublicKey := os.Getenv("VAPID_PUBLIC_KEY")
 
 	app.OnRecordAfterCreateRequest("stateChanges").Add(func(e *core.RecordCreateEvent) error {
+		// Change the task's status to the new status
+		// Get the task record
+		task, err := app.Dao().FindRecordById("tasks", e.Record.GetString("task"))
+		if err != nil {
+			return err
+		}
+
+		// Set the task's status and timestamp
+		task.Set("status", e.Record.GetString("status"))
+		task.Set("timestamp", e.Record.GetDateTime("timestamp"))
+
+		// Save the task record
+		err = app.Dao().SaveRecord(task)
+		if err != nil {
+			return err
+		}
+
+		// Send notification to user
 		// get user's subscription (need to derefernece e.Record)
 		token := e.HttpContext.Request().Header.Get("Authorization")
 		if token == "" {
