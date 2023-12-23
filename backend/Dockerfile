@@ -1,16 +1,17 @@
-# from https://pocketbase.io/docs/going-to-production/
+FROM golang:1.21-alpine AS builder
+
+WORKDIR /pb
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY *.go ./
+RUN CGO_ENABLED=0 GOOS=linux go build -o /pb/pocketbase
+
 
 FROM alpine:latest
 
-ARG PB_VERSION=0.18.6
-
-RUN apk add --no-cache \
-    unzip \
-    ca-certificates
-
-# download and unzip PocketBase
-ADD https://github.com/pocketbase/pocketbase/releases/download/v${PB_VERSION}/pocketbase_${PB_VERSION}_linux_amd64.zip /tmp/pb.zip
-RUN unzip /tmp/pb.zip -d /pb/
+COPY --from=builder /pb/pocketbase /pb/pocketbase
 
 # uncomment to copy the local pb_migrations dir into the image
 # COPY ./pb_migrations /pb/pb_migrations

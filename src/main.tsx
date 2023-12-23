@@ -7,6 +7,7 @@ import TaskList from "./pages/task-list.tsx";
 import Task from "./pages/task.tsx";
 import CreateTask from "./pages/create-task.tsx";
 import Login from "./Login.tsx";
+import ApiToken from "./pages/api-token.tsx";
 
 const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ const router = createBrowserRouter([
       {
         path: "/create",
         element: <CreateTask />,
+      },
+      {
+        path: "/token",
+        element: <ApiToken />,
       },
     ],
   },

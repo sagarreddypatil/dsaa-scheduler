@@ -3,6 +3,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"log"
 	"os"
@@ -11,6 +13,7 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -20,6 +23,20 @@ import (
 
 	webpush "github.com/SherClockHolmes/webpush-go"
 )
+
+func GenerateRandomToken() (string, error) {
+	tokenLength := 16 // 128 bits = 16 bytes
+
+	token := make([]byte, tokenLength)
+	_, err := rand.Read(token)
+	if err != nil {
+		return "", err
+	}
+
+	// Convert bytes to hex string
+	tokenStr := base64.URLEncoding.EncodeToString(token)
+	return tokenStr, nil
+}
 
 func main() {
 	app := pocketbase.New()
@@ -122,6 +139,27 @@ func main() {
 	})
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+		e.Router.GET("/api/v1/token", func(c echo.Context) error {
+			info := apis.RequestInfo(c)
+			record := info.AuthRecord
+
+			// create new token, write it to record and return
+			token, err := GenerateRandomToken()
+			if err != nil {
+				return err
+			}
+
+			record.Set("apiToken", token)
+			err = app.Dao().SaveRecord(record)
+			if err != nil {
+				return err
+			}
+
+			return c.JSON(200, map[string]interface{}{
+				"token": token,
+			})
+		}, apis.RequireRecordAuth())
+
 		// serves static files from the provided public dir (if exists)
 		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS(publicDir), indexFallback))
 		return nil

@@ -1,58 +1,61 @@
 import { Outlet, useNavigate, useNavigation } from "react-router-dom";
 import { pb } from "./Login";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "./controls/button";
+import { Dropdown, DropdownItem } from "./controls/dropdown";
 
 const VAPID_PUBLIC_KEY =
   "BAhQEypP3kzKm0J5Rqpb8EgW3UHni-9A-M5IrELV1OjS0QWkNleCv94BvDiCgMk2QZHz3Jt8M5q5s8ErlsZdG8M";
 
-function isIOS() {
-  return false;
-  const browserInfo = navigator.userAgent.toLowerCase();
-
-  if (browserInfo.match("iphone") || browserInfo.match("ipad")) {
-    return true;
-  }
-  if (
-    [
-      "iPad Simulator",
-      "iPhone Simulator",
-      "iPod Simulator",
-      "iPad",
-      "iPhone",
-      "iPod",
-    ].includes(navigator.platform)
-  ) {
-    return true;
-  }
-  return false;
-}
-
 export default function App() {
+  const pwaSupported = () =>
+    "Notification" in window &&
+    "serviceWorker" in navigator &&
+    "PushManager" in window;
+
   const navigation = useNavigation();
   const navigate = useNavigate();
 
-  const [showSubscribe, setShowSubscribe] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userRecord, setUserRecord] = useState<any>(null);
+
+  const [subscribed, setSubscribed] = useState(pwaSupported());
+  const [notifyStatus, setNotifyStatus] = useState<NotificationPermission>(
+    pwaSupported() ? Notification.permission : "denied"
+  );
 
   useEffect(() => {
     // if not logged in, redirect to login page
     if (!pb.authStore.isValid) {
       navigate("/login");
+      return;
     }
-  });
+
+    pb.collection("users")
+      .getOne(pb.authStore.model!.id)
+      .then((record) => {
+        setUserRecord(record);
+      });
+
+    setLoggedIn(true);
+  }, [pb.authStore.isValid]);
 
   const logout = () => {
     pb.authStore.clear();
     navigate("/login");
   };
 
-  const [showNotifyPrompt, setShowNotifyPrompt] = useState(
-    isIOS() ? false : Notification.permission !== "granted"
-  );
+  const profilePicUrl = useMemo(() => {
+    if (!userRecord) return "";
+    return pb.files.getUrl(userRecord, userRecord.avatar, {
+      thumb: "32x32",
+    });
+  }, [userRecord]);
 
   useEffect(() => {
     // if we're logged in, then register push
     if (!pb.authStore.isValid) return;
+    if (!pwaSupported()) return;
 
     // register push
     navigator.serviceWorker
@@ -65,65 +68,126 @@ export default function App() {
           .getSubscription()
           .then((subscription) => {
             if (!subscription) {
-              setShowSubscribe(true);
+              setSubscribed(false);
               return;
             }
 
-            // TODO: send info to backend
-            pb.collection("users").update(pb.authStore.model!.id, {
+            return pb.collection("users").update(pb.authStore.model!.id, {
               webPushSubscription: subscription.toJSON(),
             });
-
-            setShowSubscribe(false);
           });
+      })
+      .catch((err) => {
+        console.error(err);
+        setSubscribed(false);
       });
   }, []);
 
   const subscribe = () => {
     if (!pb.authStore.isValid) return;
+    if (!pwaSupported()) return;
 
     navigator.serviceWorker.ready.then((registration) => {
-      registration.pushManager
+      return registration.pushManager
         .subscribe({
           userVisibleOnly: true,
           applicationServerKey: VAPID_PUBLIC_KEY,
         })
         .then((subscription) => {
-          pb.collection("users").update(pb.authStore.model!.id, {
+          return pb.collection("users").update(pb.authStore.model!.id, {
             webPushSubscription: subscription.toJSON(),
           });
-
-          setShowSubscribe(false);
+        })
+        .then(() => {
+          setSubscribed(true);
         });
     });
   };
 
+  const unsubscribe = () => {
+    if (!pb.authStore.isValid) return;
+    if (!pwaSupported()) return;
+    navigator.serviceWorker.ready.then((registration) => {
+      registration.pushManager.getSubscription().then((subscription) => {
+        if (!subscription) {
+          return;
+        }
+
+        subscription
+          .unsubscribe()
+          .then(() => {
+            return pb.collection("users").update(pb.authStore.model!.id, {
+              webPushSubscription: null,
+            });
+          })
+          .then(() => {
+            setSubscribed(false);
+          });
+      });
+    });
+  };
+
+  const enableNotifications = () => {
+    if (!pwaSupported()) return;
+
+    Notification.requestPermission().then((permission) => {
+      setNotifyStatus(permission);
+    });
+  };
+
+  const renderNotifyButton = () => {
+    switch (notifyStatus) {
+      case "granted":
+        return <DropdownItem>Notifications Enabled</DropdownItem>;
+      case "denied":
+        return (
+          <DropdownItem className="text-red-500">
+            Notifications Denied
+          </DropdownItem>
+        );
+      default:
+        return (
+          <DropdownItem onClick={enableNotifications}>
+            Allow Notifications
+          </DropdownItem>
+        );
+    }
+  };
+
+  if (!loggedIn) return <></>;
+
   return (
     <div className="my-4 max-w-xl mx-auto px-2">
       <div className="flex flex-row justify-between mb-2">
-        <button className="text-2xl" onClick={() => navigate("/")}>
+        <button
+          className="text-2xl flex flex-col justify-center"
+          onClick={() => navigate("/")}
+        >
           schd
         </button>
-        {/* <Button onClick={logout}>Logout</Button> */}
+        <Dropdown
+          name={
+            <img
+              alt="profile pic"
+              src={profilePicUrl}
+              className="p-0.5 border border-black hover:bg-black"
+              height={48}
+              width={48}
+            />
+          }
+          right={true}
+        >
+          {renderNotifyButton()}
+          <DropdownItem onClick={subscribed ? unsubscribe : subscribe}>
+            {subscribed ? "Unsubscribe" : "Subscribe"}
+          </DropdownItem>
+          <DropdownItem onClick={() => navigate("/token")}>
+            API Token
+          </DropdownItem>
+          <DropdownItem onClick={logout}>Logout</DropdownItem>
+        </Dropdown>
       </div>
       <hr className="border-gray-500" />
-      {showSubscribe && <Button onClick={subscribe}>Subscribe</Button>}
-      {showNotifyPrompt && (
-        <Button
-          className="mt-2 w-full h-10 font-bold text-2xl bg-red-300"
-          onClick={() => {
-            if (isIOS()) return;
-            Notification.requestPermission().then((result) => {
-              if (result === "granted") {
-                setShowNotifyPrompt(false);
-              }
-            });
-          }}
-        >
-          {/* Enable Notifications */}
-          {Notification.permission}
-        </Button>
-      )}
       <br className="h-2" />
       <Outlet />
     </div>
