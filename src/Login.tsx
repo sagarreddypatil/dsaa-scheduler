@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-export const pb = new PocketBase("http://photon:8093");
+export const pb = new PocketBase(window.location.origin);
 pb.autoCancellation(false);
 
 import { Submit } from "./controls/button";
