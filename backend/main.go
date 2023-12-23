@@ -265,6 +265,9 @@ func main() {
 	VAPIDPrivateKey := os.Getenv("VAPID_PRIVATE_KEY")
 	VAPIDPublicKey := os.Getenv("VAPID_PUBLIC_KEY")
 
+	// print public key for debugging
+	log.Println("VAPID Public Key: ", VAPIDPublicKey)
+
 	app.OnRecordAfterCreateRequest("stateChanges").Add(func(e *core.RecordCreateEvent) error {
 		// Change the task's status to the new status
 		// Get the task record
@@ -317,7 +320,7 @@ func main() {
 		}
 
 		resp, err := webpush.SendNotification(message, s, &webpush.Options{
-			Subscriber:      "http://sagarpatil.me",
+			Subscriber:      "https://dsaa-schd.fly.dev/",
 			VAPIDPublicKey:  VAPIDPublicKey,
 			VAPIDPrivateKey: VAPIDPrivateKey,
 			TTL:             30,
