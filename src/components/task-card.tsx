@@ -133,7 +133,7 @@ export default function TaskCard({
         }`}
       >
         <h2
-          className={`text-2xl font-bold ${
+          className={`text-xl ${
             anyButtons ? "overflow-hidden whitespace-nowrap text-ellipsis" : ""
           }`}
         >

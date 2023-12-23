@@ -21,12 +21,15 @@ export default function TaskList() {
     <div className="flex flex-col gap-3">
       <div className="grid grid-cols-2 gap-4">
         <Button
-          className="h-10 bg-purple-300 flex-1"
+          className="h-10 bg-purple-300 flex-1 text-xl font-bold"
           onClick={() => navigate("/create")}
         >
           + Create Task
         </Button>
-        <Button className="h-10 bg-green-300 flex-1" onClick={() => evict()}>
+        <Button
+          className="h-10 bg-green-300 flex-1 text-xl font-bold"
+          onClick={() => evict()}
+        >
           Idle
         </Button>
       </div>

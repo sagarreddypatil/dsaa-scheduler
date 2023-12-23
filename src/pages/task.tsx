@@ -44,6 +44,8 @@ export default function Task() {
   if (!_task) return <h1>Task not found</h1>;
   const task = { ..._task, color: color };
 
+  if (!stateChanges) return <></>;
+
   const taskChanges = stateChanges
     .filter((change) => change.task === task.id)
     .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());

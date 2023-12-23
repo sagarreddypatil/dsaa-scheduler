@@ -11,7 +11,7 @@ export default function useTasks() {
     usePbRecords<StateChange>("stateChanges");
 
   const stateChanges = useMemo(() => {
-    if (!_stateChanges) return [] as StateChange[];
+    if (!_stateChanges) return null;
 
     // convert timestamp to Date
     return _stateChanges.map((stateChange) => {
