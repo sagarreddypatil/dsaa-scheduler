@@ -116,7 +116,9 @@ export default function App() {
     navigator.serviceWorker.ready.then((registration) => {
       registration.pushManager.getSubscription().then((subscription) => {
         if (!subscription) {
-          return;
+          return pb.collection("users").update(pb.authStore.model!.id, {
+            webPushSubscription: null,
+          }); // delete database entry no matter what
         }
 
         subscription
@@ -167,7 +169,7 @@ export default function App() {
       if (alreadySubscribed) {
         return (
           <DropdownItem
-            onClick={subscribe}
+            onClick={unsubscribe}
             className="text-red-500 hover:bg-red-500"
           >
             Subscribed Elsewhere
