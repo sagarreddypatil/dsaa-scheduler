@@ -8,6 +8,7 @@ import { useDebounce } from "usehooks-ts";
 import { Button } from "../controls/button";
 import { pb } from "../Login";
 import Textbox from "../controls/textbox";
+import Markdown from "react-markdown";
 
 // from https://github.com/Chalarangelo/30-seconds-of-code/blob/master/content/snippets/js/s/format-duration.md
 const formatDuration = (ms: number) => {
@@ -105,7 +106,9 @@ export default function Task() {
       <TaskCard task={task} />
       <div className="h-2"></div>
       <h2 className="text-2xl font-bold">Description</h2>
-      {task.description}
+      <div className="prose prose-black prose-hr:my-2 prose-headings:mt-6 prose-headings:mb-2 prose-p:my-0">
+        <Markdown>{task.description}</Markdown>
+      </div>
       <h2 className="text-2xl font-bold">Statistics</h2>
       You started this task at {oldestChange.timestamp.toLocaleString()}
       <div className="-my-1" />
