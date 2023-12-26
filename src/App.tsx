@@ -51,8 +51,8 @@ export default function App() {
   };
 
   const profilePicUrl = useMemo(() => {
-    if (!userRecord) return "";
-    if (!userRecord.avatar) return "";
+    if (!userRecord) return null;
+    if (!userRecord.avatar) return null;
     return pb.files.getUrl(userRecord, userRecord.avatar, {
       thumb: "32x32",
     });
@@ -189,13 +189,19 @@ export default function App() {
         </button>
         <Dropdown
           name={
-            <img
-              alt="profile pic"
-              src={profilePicUrl}
-              className="p-0.5 border border-black hover:bg-black"
-              height={48}
-              width={48}
-            />
+            profilePicUrl ? (
+              <img
+                alt="profile pic"
+                src={profilePicUrl}
+                className="p-0.5 border border-black hover:bg-black"
+                height={48}
+                width={48}
+              />
+            ) : (
+              <div className="aspect-square w-[48px] h-[48px] flex flex-col justify-center text-3xl border border-black hover:bg-black hover:text-white p-0.5">
+                {userRecord?.name?.substring(0, 1)}
+              </div>
+            )
           }
           right={true}
         >
