@@ -17,11 +17,11 @@ export default function CreateTask() {
     const description = descriptionRef.current?.value;
     const priority = priorityRef.current?.value;
 
-    if (!taskName || !description || !priority) return;
+    if (!taskName || !priority) return;
 
     addTask({
       title: taskName,
-      description: description,
+      description: description || "",
       priority: parseInt(priority),
     });
 
