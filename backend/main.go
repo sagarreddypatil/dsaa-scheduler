@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -320,7 +321,7 @@ func main() {
 		}
 
 		resp, err := webpush.SendNotification(message, s, &webpush.Options{
-			Subscriber:      "https://dsaa-schd.fly.dev/",
+			Subscriber:      "sagarreddypatil@gmail.com",
 			VAPIDPublicKey:  VAPIDPublicKey,
 			VAPIDPrivateKey: VAPIDPrivateKey,
 			TTL:             30,
@@ -332,9 +333,12 @@ func main() {
 		}
 
 		// read resp and print for debug
-		bodyContent := make([]byte, 1024)
-		resp.Body.Read(bodyContent)
-		log.Println("Response: ", string(bodyContent))
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			log.Println("Error reading response body:", err)
+			return err
+		}
+		log.Println("Response body:", string(body))
 
 		defer resp.Body.Close()
 		return nil
