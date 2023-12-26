@@ -123,12 +123,12 @@ export default function Task() {
         onChange={setColor}
       />
       <div className="h-2"></div>
-      <Button
+      {/* <Button
         className="outline-red-500 text-red-500 hover:bg-red-500 h-8"
         onClick={deleteTask}
       >
         Delete Permanently
-      </Button>
+      </Button> */}
     </div>
   );
 }
