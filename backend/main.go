@@ -204,8 +204,6 @@ func main() {
 				return err
 			}
 
-			log.Print("record: ", record)
-
 			filter := fmt.Sprintf("user = '%s'", record.Id)
 
 			tasks, err := app.Dao().FindRecordsByFilter(
@@ -238,7 +236,7 @@ func main() {
 				}
 
 				// update the task itself
-				task.Set("status", "READY")
+				task.Set("status", "READY") // this is redundant but i don't wanna mess with it
 				task.Set("timestamp", newTime)
 				err = app.Dao().SaveRecord(task)
 
@@ -269,17 +267,23 @@ func main() {
 	// print public key for debugging
 	log.Println("VAPID Public Key: ", VAPIDPublicKey)
 
-	app.OnRecordAfterCreateRequest("stateChanges").Add(func(e *core.RecordCreateEvent) error {
+	app.OnModelAfterCreate("stateChanges").Add(func(e *core.ModelEvent) error {
 		// Change the task's status to the new status
-		// Get the task record
-		task, err := app.Dao().FindRecordById("tasks", e.Record.GetString("task"))
+
+		// Get the stateChange record, e.Record doesn't exist
+		record, err := app.Dao().FindRecordById("stateChanges", e.Model.GetId())
+		if err != nil {
+			return err
+		}
+
+		task, err := app.Dao().FindRecordById("tasks", record.GetString("task"))
 		if err != nil {
 			return err
 		}
 
 		// Set the task's status and timestamp
-		task.Set("status", e.Record.GetString("status"))
-		task.Set("timestamp", e.Record.GetDateTime("timestamp"))
+		task.Set("status", record.GetString("status"))
+		task.Set("timestamp", record.GetDateTime("timestamp"))
 
 		// Save the task record
 		err = app.Dao().SaveRecord(task)
@@ -287,14 +291,8 @@ func main() {
 			return err
 		}
 
-		// Send notification to user
-		// get user's subscription (need to derefernece e.Record)
-		token := e.HttpContext.Request().Header.Get("Authorization")
-		if token == "" {
-			return nil
-		}
-
-		user, err := app.Dao().FindAuthRecordByToken(token, app.Settings().RecordAuthToken.Secret)
+		// get the user
+		user, err := app.Dao().FindRecordById("users", task.GetString("user"))
 		if err != nil {
 			return err
 		}
@@ -308,11 +306,9 @@ func main() {
 		s := &webpush.Subscription{}
 		json.Unmarshal([]byte(subscription), s)
 
-		app.Dao().ExpandRecord(e.Record, []string{"task"}, nil)
-
 		payload := map[string]interface{}{
-			"stateChange": e.Record,
-			"task":        e.Record.ExpandedOne("task"),
+			"stateChange": record,
+			"task":        task,
 		}
 
 		message, err := json.Marshal(payload)
