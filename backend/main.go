@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -329,12 +328,12 @@ func main() {
 		}
 
 		// read resp and print for debug
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			log.Println("Error reading response body:", err)
-			return err
-		}
-		log.Println("Response body:", string(body))
+		// body, err := io.ReadAll(resp.Body)
+		// if err != nil {
+		// 	log.Println("Error reading response body:", err)
+		// 	return err
+		// }
+		// log.Println("Response body:", string(body))
 
 		defer resp.Body.Close()
 		return nil
