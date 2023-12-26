@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useDebounce } from "usehooks-ts";
 import { Button } from "../controls/button";
 import { pb } from "../Login";
+import Textbox from "../controls/textbox";
 
 // from https://github.com/Chalarangelo/30-seconds-of-code/blob/master/content/snippets/js/s/format-duration.md
 const formatDuration = (ms: number) => {
@@ -123,7 +124,19 @@ export default function Task() {
         onChange={setColor}
       />
       <div className="h-2"></div>
-      {/* <Button
+      <h2 className="text-2xl font-bold">Task Priority</h2>
+      <Textbox
+        placeholder="Priority"
+        value={task.priority.toString()}
+        onChange={(newVal) => {
+          const priority = parseInt(newVal);
+          if (isNaN(priority)) return;
+          updateTask({ ...task, priority });
+        }}
+        type="number"
+      />
+      {/* <div className="h-2"></div>
+      <Button
         className="outline-red-500 text-red-500 hover:bg-red-500 h-8"
         onClick={deleteTask}
       >
