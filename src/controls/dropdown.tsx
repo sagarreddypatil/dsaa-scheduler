@@ -47,7 +47,7 @@ interface DropdownItemProps {
 
 export function DropdownItem(props: DropdownItemProps) {
   const classes =
-    "text-black block w-full text-left px-2 py-1 text-md hover:bg-black hover:text-white hover:font-bold focus:bg-gray-200";
+    "text-black block w-full text-left px-2 py-1 text-md hover:bg-black hover:text-white focus:bg-gray-200";
   const activeClases = "bg-rush-light font-bold text-black";
   const inactiveClasses = "";
   const _className = twMerge(

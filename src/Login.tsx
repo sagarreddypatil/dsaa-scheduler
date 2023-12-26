@@ -1,6 +1,11 @@
 import PocketBase from "pocketbase";
 
-export const pb = new PocketBase(window.location.origin);
+const pbLocation = import.meta.env.PROD
+  ? window.location.origin
+  : "http://localhost:8093";
+
+export const pb = new PocketBase(pbLocation);
+
 pb.autoCancellation(false);
 
 import { Submit } from "./controls/button";

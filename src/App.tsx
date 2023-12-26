@@ -3,6 +3,7 @@ import { pb } from "./Login";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "./controls/button";
 import { Dropdown, DropdownItem } from "./controls/dropdown";
+import { usePbRecord } from "./hooks/pocketbase";
 
 const VAPID_PUBLIC_KEY =
   "BAhQEypP3kzKm0J5Rqpb8EgW3UHni-9A-M5IrELV1OjS0QWkNleCv94BvDiCgMk2QZHz3Jt8M5q5s8ErlsZdG8M";
@@ -17,9 +18,19 @@ export default function App() {
   const navigate = useNavigate();
 
   const [loggedIn, setLoggedIn] = useState(false);
-  const [userRecord, setUserRecord] = useState<any>(null);
+  // const [userRecord, setUserRecord] = useState<any>(null);
+  const [userRecord] = usePbRecord<User>(
+    "users",
+    loggedIn ? pb.authStore.model!.id : null
+  );
+
+  const alreadySubscribed = useMemo(() => {
+    if (!userRecord) return false;
+    return userRecord.webPushSubscription !== null;
+  }, [userRecord]);
 
   const [subscribed, setSubscribed] = useState(pwaSupported());
+
   const [notifyStatus, setNotifyStatus] = useState<NotificationPermission>(
     pwaSupported() ? Notification.permission : "denied"
   );
@@ -31,12 +42,6 @@ export default function App() {
       return;
     }
 
-    pb.collection("users")
-      .getOne(pb.authStore.model!.id)
-      .then((record) => {
-        setUserRecord(record);
-      });
-
     setLoggedIn(true);
   }, [pb.authStore.isValid]);
 
@@ -47,6 +52,7 @@ export default function App() {
 
   const profilePicUrl = useMemo(() => {
     if (!userRecord) return "";
+    if (!userRecord.avatar) return "";
     return pb.files.getUrl(userRecord, userRecord.avatar, {
       thumb: "32x32",
     });
@@ -141,7 +147,7 @@ export default function App() {
         return <DropdownItem>Notifications Enabled</DropdownItem>;
       case "denied":
         return (
-          <DropdownItem className="text-red-500">
+          <DropdownItem className="text-red-500 hover:bg-red-500">
             Notifications Denied
           </DropdownItem>
         );
@@ -151,6 +157,25 @@ export default function App() {
             Allow Notifications
           </DropdownItem>
         );
+    }
+  };
+
+  const renderSubscribeButton = () => {
+    if (subscribed) {
+      return <DropdownItem onClick={unsubscribe}>Unsubscribe</DropdownItem>;
+    } else {
+      if (alreadySubscribed) {
+        return (
+          <DropdownItem
+            onClick={unsubscribe}
+            className="text-red-500 hover:bg-red-500"
+          >
+            Subscribed Elsewhere
+          </DropdownItem>
+        );
+      } else {
+        return <DropdownItem onClick={subscribe}>Subscribe</DropdownItem>;
+      }
     }
   };
 
@@ -178,9 +203,7 @@ export default function App() {
           right={true}
         >
           {renderNotifyButton()}
-          <DropdownItem onClick={subscribed ? unsubscribe : subscribe}>
-            {subscribed ? "Unsubscribe" : "Subscribe"}
-          </DropdownItem>
+          {renderSubscribeButton()}
           <DropdownItem onClick={() => navigate("/token")}>
             API Token
           </DropdownItem>

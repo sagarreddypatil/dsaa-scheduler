@@ -77,3 +77,66 @@ export function usePbRecords<Type extends RecordBase>(collection: string) {
 
   return [records, createRecord, updateRecord, deleteRecord] as const;
 }
+
+export function usePbRecord<Type extends RecordBase>(
+  collection: string,
+  id: string | null
+) {
+  const [record, _setRecord] = useState<Type | null>(null);
+
+  useEffect(() => {
+    if (!id) {
+      _setRecord(null);
+      return;
+    }
+
+    pb.collection(collection)
+      .getOne<Type>(id)
+      .then((res) => {
+        _setRecord(res);
+      })
+      .catch((err) => {
+        _setRecord(null);
+        console.error(err);
+      });
+
+    pb.collection(collection).subscribe<Type>(id, (res) => {
+      if (res.action === "delete") {
+        _setRecord(null);
+        return;
+      }
+
+      _setRecord(res.record);
+    });
+
+    return () => {
+      pb.collection(collection).unsubscribe(id);
+    };
+  }, [collection, id]);
+
+  const setRecord = (newRecord: Type) => {
+    if (!id) {
+      _setRecord(null);
+      return;
+    }
+
+    // create if doesn't exist
+    if (!record) {
+      return pb
+        .collection(collection)
+        .create<Type>(newRecord as { [key: string]: any })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+
+    return pb
+      .collection(collection)
+      .update<Type>(id, newRecord as { [key: string]: any })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  return [record, setRecord] as const;
+}
