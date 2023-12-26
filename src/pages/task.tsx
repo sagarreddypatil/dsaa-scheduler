@@ -1,10 +1,12 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskCard from "../components/task-card";
 import { TaskStatus, defaultTaskColor } from "../types/task";
 import { HexColorPicker } from "react-colorful";
 import { useEffect, useState } from "react";
 import { useDebounce } from "usehooks-ts";
+import { Button } from "../controls/button";
+import { pb } from "../Login";
 
 // from https://github.com/Chalarangelo/30-seconds-of-code/blob/master/content/snippets/js/s/format-duration.md
 const formatDuration = (ms: number) => {
@@ -23,6 +25,8 @@ const formatDuration = (ms: number) => {
 };
 
 export default function Task() {
+  const navigate = useNavigate();
+
   const { tasks, stateChanges, updateTask } = useTasks();
   const { id } = useParams();
 
@@ -82,6 +86,19 @@ export default function Task() {
 
   const timePerWeekPretty = formatDuration(timePerWeek * 1000);
 
+  const deleteTask = () => {
+    const resp = confirm(
+      "Are you sure you want to delete this task? This is permanent and cannot be undone."
+    );
+    if (!resp) return;
+
+    pb.collection("tasks")
+      .delete(task.id)
+      .then(() => {
+        navigate("/");
+      });
+  };
+
   return (
     <div className="flex flex-col gap-3">
       <TaskCard task={task} />
@@ -105,6 +122,13 @@ export default function Task() {
         color={color}
         onChange={setColor}
       />
+      <div className="h-2"></div>
+      <Button
+        className="outline-red-500 text-red-500 hover:bg-red-500 h-8"
+        onClick={deleteTask}
+      >
+        Delete Permanently
+      </Button>
     </div>
   );
 }
