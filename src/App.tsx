@@ -167,7 +167,7 @@ export default function App() {
       if (alreadySubscribed) {
         return (
           <DropdownItem
-            onClick={unsubscribe}
+            onClick={subscribe}
             className="text-red-500 hover:bg-red-500"
           >
             Subscribed Elsewhere
