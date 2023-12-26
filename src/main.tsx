@@ -12,6 +12,7 @@ import Task from "./pages/task.tsx";
 import CreateTask from "./pages/create-task.tsx";
 import Login from "./Login.tsx";
 import ApiToken from "./pages/api-token.tsx";
+import ChangePassword from "./pages/change-password.tsx";
 
 const router = createHashRouter([
   {
@@ -37,6 +38,10 @@ const router = createHashRouter([
       {
         path: "/token",
         element: <ApiToken />,
+      },
+      {
+        path: "change-password",
+        element: <ChangePassword />,
       },
     ],
   },

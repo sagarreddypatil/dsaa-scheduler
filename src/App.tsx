@@ -18,10 +18,9 @@ export default function App() {
   const navigate = useNavigate();
 
   const [loggedIn, setLoggedIn] = useState(false);
-  // const [userRecord, setUserRecord] = useState<any>(null);
   const [userRecord] = usePbRecord<User>(
     "users",
-    loggedIn ? pb.authStore.model!.id : null
+    loggedIn && pb.authStore.model ? pb.authStore.model!.id : null
   );
 
   const alreadySubscribed = useMemo(() => {
@@ -209,6 +208,9 @@ export default function App() {
           {renderSubscribeButton()}
           <DropdownItem onClick={() => navigate("/token")}>
             API Token
+          </DropdownItem>
+          <DropdownItem onClick={() => navigate("/change-password")}>
+            Change Password
           </DropdownItem>
           <DropdownItem onClick={logout}>Logout</DropdownItem>
         </Dropdown>
