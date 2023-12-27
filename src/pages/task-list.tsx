@@ -87,18 +87,21 @@ export default function TaskList() {
       <div className="h-2"></div>
       <h2 className="text-2xl font-bold">Done</h2>
       <hr className="border-gray-500" />
-      {tasks.map((task) => {
-        if (!task) return;
-        if (task.status !== TaskStatus.DONE) return;
-        return (
-          <TaskCard
-            task={task}
-            key={task.id}
-            schedule={() => schedule(task.id)}
-            resurrect={() => addStateChange(task.id, TaskStatus.READY)}
-          />
-        );
-      })}
+      {tasks
+        .filter((task) => task.status === TaskStatus.DONE)
+        .sort((a, b) => {
+          return b.timestamp.getTime() - a.timestamp.getTime();
+        })
+        .map((task) => {
+          return (
+            <TaskCard
+              task={task}
+              key={task.id}
+              schedule={() => schedule(task.id)}
+              resurrect={() => addStateChange(task.id, TaskStatus.READY)}
+            />
+          );
+        })}
     </div>
   );
 }
