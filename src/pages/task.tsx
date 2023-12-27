@@ -38,7 +38,7 @@ export default function Task() {
   const [color, setColor] = useState(defaultTaskColor);
   const debouncedColor = useDebounce(color, 500);
 
-  const _task = tasks.find((task) => task.id === id);
+  const _task = tasks && tasks.find((task) => task.id === id);
 
   useEffect(() => {
     if (editDesc) {

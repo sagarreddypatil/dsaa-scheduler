@@ -54,6 +54,7 @@ export default function App() {
     if (!userRecord.avatar) return null;
     return pb.files.getUrl(userRecord, userRecord.avatar, {
       thumb: "32x32",
+      cache: "force-cache",
     });
   }, [userRecord]);
 
