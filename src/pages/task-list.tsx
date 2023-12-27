@@ -4,6 +4,9 @@ import { Button } from "../controls/button";
 import useTasks from "../hooks/useTasks";
 import { TaskStatus } from "../types/task";
 import Textbox from "../controls/textbox";
+import { useState } from "react";
+import useLocalStorage from "../hooks/useLocalStorage";
+import { FaChevronDown, FaChevronLeft } from "react-icons/fa";
 
 export default function TaskList() {
   const {
@@ -15,7 +18,12 @@ export default function TaskList() {
     finish,
     addStateChange,
   } = useTasks();
+
   const navigate = useNavigate();
+  const [doneCollapsed, setDoneCollapsed] = useLocalStorage(
+    "doneCollapsed",
+    true
+  );
 
   const ButtonPanel = () => {
     return (
@@ -85,23 +93,35 @@ export default function TaskList() {
         );
       })}
       <div className="h-2"></div>
-      <h2 className="text-2xl font-bold">Done</h2>
+      <button
+        className="flex flex-row text-left"
+        onClick={() => setDoneCollapsed((old) => !old)}
+      >
+        <h2 className="text-2xl font-bold flex-1">Done</h2>
+        <span className="flex justify-center items-center">
+          {doneCollapsed ? <FaChevronLeft /> : <FaChevronDown />}
+        </span>
+      </button>
       <hr className="border-gray-500" />
-      {tasks
-        .filter((task) => task.status === TaskStatus.DONE)
-        .sort((a, b) => {
-          return b.timestamp.getTime() - a.timestamp.getTime();
-        })
-        .map((task) => {
-          return (
-            <TaskCard
-              task={task}
-              key={task.id}
-              schedule={() => schedule(task.id)}
-              resurrect={() => addStateChange(task.id, TaskStatus.READY)}
-            />
-          );
-        })}
+      {!doneCollapsed && (
+        <>
+          {tasks
+            .filter((task) => task.status === TaskStatus.DONE)
+            .sort((a, b) => {
+              return b.timestamp.getTime() - a.timestamp.getTime();
+            })
+            .map((task) => {
+              return (
+                <TaskCard
+                  task={task}
+                  key={task.id}
+                  schedule={() => schedule(task.id)}
+                  resurrect={() => addStateChange(task.id, TaskStatus.READY)}
+                />
+              );
+            })}
+        </>
+      )}
     </div>
   );
 }
