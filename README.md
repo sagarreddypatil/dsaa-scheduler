@@ -1,27 +1,67 @@
-# React + TypeScript + Vite
+# schd
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+I made this because I needed a single source of truth for everything I needed to
+do, and I wanted to just be able to look at a list and pick a task.
 
-Currently, two official plugins are available:
+This is a progressive web app, and runs a service worker to show notifications.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Currently, this doesn't support due dates
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- React, built with Vite
+- TailwindCSS
+- [Pocketbase](https://pocketbase.io/)
+  - With custom hooks for notifications
+  - The custom API is undocumented, but it's pretty simple
 
-- Configure the top-level `parserOptions` property like this:
+## Development
 
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
+### Dependencies
+
+- NodeJS + Yarn
+- One of
+  - Go 1.21+
+  - Docker
+
+### Frontend
+
+```bash
+# Install dependencies
+yarn
+
+# Run the dev server
+yarn dev
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+### Backend
+
+```bash
+cd backend
+
+go run main.go serve --http=0.0.0.0:8093
+```
+
+Any changes you make to the database will be recorded in `backend/pb_migrations`
+which is included in the build
+
+If you want to mess with the server location, see `src/Login.tsx:3`
+
+### Frozen Backend
+
+If you don't expect to make changes to the backend, you can run it over Docker
+
+```bash
+docker compose build
+docker compose up
+```
+
+Note that this also runs the frontend (under route `/`). To see the development
+version instead, go to `localhost:5173` served by Vite.
+
+## Deployment
+
+I use [Fly](https://fly.io) to deploy this. The config is in `fly.toml`.
+There is a single `Dockerfile` where the frontend and backend are built.
+
+The frontend is served by the backend as static files, so React uses hash (`/#/`) routing.
