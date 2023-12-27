@@ -148,7 +148,13 @@ export default function Task() {
           }}
         />
       ) : (
-        <div className="prose prose-neutral prose-hr:my-2 prose-headings:mt-6 prose-headings:mb-2 prose-p:my-0 prose-ul:m-0 prose-h1:text-3xl prose-h1:font-normal prose-h2:text-2xl prose-hr:border-gray-500 text-black">
+        <div
+          className={
+            "prose prose-neutral prose-hr:my-2 prose-headings:mt-6 prose-headings:mb-2\
+             prose-p:my-0 prose-ul:m-0 prose-h1:text-3xl prose-h1:font-normal\
+             prose-h2:text-2xl prose-hr:border-gray-500 text-black"
+          }
+        >
           <Markdown>{task.description}</Markdown>
         </div>
       )}
