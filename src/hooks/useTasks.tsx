@@ -22,8 +22,8 @@ export default function useTasks() {
     });
   }, [_stateChanges]);
 
-  const tasks: RuntimeTask[] = useMemo(() => {
-    if (!_tasks) return [] as RuntimeTask[];
+  const tasks: RuntimeTask[] | null = useMemo(() => {
+    if (!_tasks) return null;
 
     // for each task, get the latest state change
     return _tasks.map((task) => {
@@ -37,6 +37,7 @@ export default function useTasks() {
   }, [_tasks]);
 
   const readyList = useMemo(() => {
+    if (!tasks) return [];
     return tasks
       .filter((task) => task.status === TaskStatus.READY)
       .sort((a, b) => {
@@ -52,7 +53,8 @@ export default function useTasks() {
   }, [tasks]);
 
   const currentTask = useMemo(() => {
-    return tasks.find((task) => task.status === TaskStatus.CURRENT);
+    if (!tasks) return null;
+    return tasks.find((task) => task.status === TaskStatus.CURRENT) || null;
   }, [tasks]);
 
   const addStateChange = (taskId: string, status: TaskStatus) => {
@@ -71,6 +73,7 @@ export default function useTasks() {
   };
 
   const schedule = (taskId: string) => {
+    if (!tasks) return;
     const task = tasks.find((task) => task.id === taskId);
     if (!task) return;
 

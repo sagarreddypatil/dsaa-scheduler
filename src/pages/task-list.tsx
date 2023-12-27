@@ -17,8 +17,8 @@ export default function TaskList() {
   } = useTasks();
   const navigate = useNavigate();
 
-  return (
-    <div className="flex flex-col gap-3">
+  const ButtonPanel = () => {
+    return (
       <div className="grid grid-cols-2 gap-4">
         <Button
           className="h-10 bg-purple-300 flex-1 text-xl font-bold"
@@ -33,6 +33,20 @@ export default function TaskList() {
           Idle
         </Button>
       </div>
+    );
+  };
+
+  if (tasks === null) {
+    return (
+      <div className="flex flex-col gap-3">
+        <h2 className="text-2xl font-bold">Loading...</h2>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <ButtonPanel />
       <h2 className="text-2xl font-bold">Current Task</h2>
       <hr className="border-gray-500" />
       {currentTask ? (
