@@ -22,6 +22,15 @@ function ActionButton({
   );
 }
 
+function hexToRgb(hex: string) {
+  let bigint = parseInt(hex.substring(1), 16);
+  let r = (bigint >> 16) & 255;
+  let g = (bigint >> 8) & 255;
+  let b = bigint & 255;
+
+  return [r, g, b];
+}
+
 export default function TaskCard({
   task,
   className,
@@ -110,6 +119,13 @@ export default function TaskCard({
   const color =
     task.color == null || task.color == "" ? defaultTaskColor : task.color;
 
+  const [r, g, b] = hexToRgb(color);
+  // https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
+  console.log(r, g, b);
+  const foregroundBlack = r * 0.299 + g * 0.587 + b * 0.114 > 186;
+  const foregroundColor = foregroundBlack ? "#000" : "#fff";
+  console.log(foregroundColor);
+
   const statusColors = {
     [TaskStatus.READY]: "",
     [TaskStatus.CURRENT]: "bg-orange-300",
@@ -122,8 +138,8 @@ export default function TaskCard({
       className={`border border-black ${className} flex shadow-[3px_3px_0px_1px_rgba(0,0,0,0.5)]`}
     >
       <TaskButton
-        className="flex-none text-2xl w-12 text-center flex items-center justify-center border-r border-black"
-        style={{ backgroundColor: color }}
+        className="flex-none text-2xl w-12 text-center flex items-center justify-center border-r border-black "
+        style={{ backgroundColor: color, color: foregroundColor }}
       >
         {task.priority}
       </TaskButton>
