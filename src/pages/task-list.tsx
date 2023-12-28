@@ -74,7 +74,7 @@ export default function TaskList() {
             priority: 0,
             status: TaskStatus.CURRENT,
             timestamp: new Date(),
-            color: "#fff",
+            color: "#ffffff",
           }}
         />
       )}

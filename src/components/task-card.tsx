@@ -121,10 +121,8 @@ export default function TaskCard({
 
   const [r, g, b] = hexToRgb(color);
   // https://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
-  console.log(r, g, b);
   const foregroundBlack = r * 0.299 + g * 0.587 + b * 0.114 > 186;
   const foregroundColor = foregroundBlack ? "#000" : "#fff";
-  console.log(foregroundColor);
 
   const statusColors = {
     [TaskStatus.READY]: "",
