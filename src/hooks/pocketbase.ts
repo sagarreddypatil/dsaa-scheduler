@@ -42,7 +42,7 @@ export function usePbRecords<Type extends RecordBase>(collection: string) {
     });
 
     return () => {
-      pb.collection(collection).unsubscribe("*");
+      pb.collection(collection).unsubscribe();
     };
   }, [collection]);
 
