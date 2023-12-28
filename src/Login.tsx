@@ -2,7 +2,7 @@ import PocketBase from "pocketbase";
 
 const pbLocation = import.meta.env.PROD
   ? window.location.origin
-  : "http://localhost:8093";
+  : "http://photon:8093";
 
 export const pb = new PocketBase(pbLocation);
 

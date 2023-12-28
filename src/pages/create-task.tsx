@@ -36,7 +36,11 @@ export default function CreateTask() {
         ref={descriptionRef}
         className="p-2 border border-black rounded-none text-lg"
       />
-      <Textbox placeholder="Priority" ref={priorityRef} type="number" />
+      <Textbox
+        placeholder="Priority (lower is more urgent)"
+        ref={priorityRef}
+        type="number"
+      />
       <div className="flex flex-row gap-4">
         <Button
           className="font-bold py-1 bg-green-300 flex-1"

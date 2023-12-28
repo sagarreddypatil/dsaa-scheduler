@@ -55,6 +55,7 @@ export default function TaskList() {
   return (
     <div className="flex flex-col gap-3">
       <ButtonPanel />
+      <div className="h-2"></div>
       <h2 className="text-2xl font-bold">Current Task</h2>
       <hr className="border-gray-500" />
       {currentTask ? (
@@ -78,7 +79,9 @@ export default function TaskList() {
         />
       )}
       <div className="h-2"></div>
-      <h2 className="text-2xl font-bold">Ready to do</h2>
+      <div className="flex flex-row">
+        <h2 className="text-2xl font-bold flex-1">Ready to do</h2>
+      </div>
       <hr className="border-gray-500" />
       {readyList.map((taskId) => {
         const task = tasks.find((task) => task.id === taskId);
@@ -94,12 +97,12 @@ export default function TaskList() {
       })}
       <div className="h-2"></div>
       <button
-        className="flex flex-row text-left"
+        className="flex flex-row text-left items-center"
         onClick={() => setDoneCollapsed((old) => !old)}
       >
         <h2 className="text-2xl font-bold flex-1">Done</h2>
         <span className="flex justify-center items-center">
-          {doneCollapsed ? <FaChevronLeft /> : <FaChevronDown />}
+          <FaChevronDown />
         </span>
       </button>
       <hr className="border-gray-500" />
