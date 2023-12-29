@@ -2,6 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../controls/button";
 import { RuntimeTask, TaskStatus, defaultTaskColor } from "../types/task";
 import { twMerge } from "tailwind-merge";
+import { Select } from "../controls/select";
+import { useEffect, useState } from "react";
+import Textbox from "../controls/textbox";
+import { pb } from "../Login";
 
 function ActionButton({
   children,
@@ -38,6 +42,7 @@ export default function TaskCard({
   schedule,
   evict,
   resurrect,
+  showEdit,
 }: {
   task: RuntimeTask;
   className?: string;
@@ -45,8 +50,20 @@ export default function TaskCard({
   schedule?: () => void;
   evict?: () => void;
   resurrect?: () => void;
+  showEdit?: boolean;
 }) {
   const navigate = useNavigate();
+
+  const [editName, setEditName] = useState(false);
+  const [newTitle, setNewTitle] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!editName && newTitle !== null) {
+      // update task title
+      pb.collection("tasks").update(task.id, { title: newTitle });
+      setNewTitle(null);
+    }
+  }, [editName]);
 
   const TaskButton = ({
     style,
@@ -100,9 +117,23 @@ export default function TaskCard({
     <></>
   );
 
+  const editButton = showEdit ? (
+    <Select
+      className="h-full w-24 shadow-none"
+      selected={editName}
+      onClick={() => setEditName((cur) => !cur)}
+    >
+      Rename
+    </Select>
+  ) : (
+    <></>
+  );
+
   const anyButtons = finish || schedule || evict || resurrect;
 
   const renderButtons = () => {
+    if (showEdit) return <div className="flex flex-col h-10">{editButton}</div>;
+
     if (!anyButtons) return <></>;
     switch (task.status) {
       case TaskStatus.READY:
@@ -141,19 +172,29 @@ export default function TaskCard({
       >
         {task.priority}
       </TaskButton>
-      <TaskButton
-        className={`flex-1 ps-2 pe-2 py-1 overflow-hidden ${
-          statusColors[task.status]
-        }`}
-      >
-        <h2
-          className={`text-xl ${
-            anyButtons ? "overflow-hidden whitespace-nowrap text-ellipsis" : ""
+      {editName ? (
+        <Textbox
+          className="flex-1"
+          defaultValue={task.title}
+          onChange={(title) => setNewTitle(title)}
+        />
+      ) : (
+        <TaskButton
+          className={`flex-1 ps-2 pe-2 py-1 overflow-hidden ${
+            statusColors[task.status]
           }`}
         >
-          {task.title}
-        </h2>
-      </TaskButton>
+          <h2
+            className={`text-xl ${
+              anyButtons
+                ? "overflow-hidden whitespace-nowrap text-ellipsis"
+                : ""
+            }`}
+          >
+            {task.title}
+          </h2>
+        </TaskButton>
+      )}
       {renderButtons()}
     </div>
   );

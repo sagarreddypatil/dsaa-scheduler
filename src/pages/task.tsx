@@ -120,7 +120,7 @@ export default function Task() {
 
   return (
     <div className="flex flex-col gap-3">
-      <TaskCard task={task} />
+      <TaskCard task={task} showEdit={true} />
       <div className="h-2"></div>
       <div className="flex flex-row">
         <h2 className="text-2xl font-bold flex-1">Description</h2>

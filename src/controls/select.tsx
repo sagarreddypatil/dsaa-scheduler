@@ -15,7 +15,7 @@ export function Select({
   const id = useId();
 
   return (
-    <div className="flex">
+    <div className="flex flex-1">
       <input
         type="checkbox"
         id={id}
