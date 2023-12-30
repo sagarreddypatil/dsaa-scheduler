@@ -179,7 +179,7 @@ export default function App() {
   if (!loggedIn) return <></>;
 
   return (
-    <div className="my-4 max-w-xl mx-auto px-2">
+    <div className="mt-4 mb-12 max-w-xl mx-auto px-2">
       <div className="flex flex-row justify-between mb-2">
         <button
           className="text-2xl flex flex-col justify-center"
