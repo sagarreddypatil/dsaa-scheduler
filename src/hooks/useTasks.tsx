@@ -1,26 +1,27 @@
 import { useMemo } from "react";
 import { RuntimeTask, StateChange, Task, TaskStatus } from "../types/task";
 import { usePbRecords } from "./pocketbase";
+import { pb } from "../Login";
 
 export default function useTasks() {
   // const [_tasks, setTasks] = useState<Task[]>([]); // task table
   const [_tasks, _createTask, _updateTask] = usePbRecords<Task>("tasks");
 
   // const [stateChanges, setStateChanges] = useState<StateChange[]>([]); // state change table
-  const [_stateChanges, _addStateChange] =
-    usePbRecords<StateChange>("stateChanges");
+  // const [_stateChanges, _addStateChange] =
+  //   usePbRecords<StateChange>("stateChanges");
 
-  const stateChanges = useMemo(() => {
-    if (!_stateChanges) return null;
+  // const stateChanges = useMemo(() => {
+  //   if (!_stateChanges) return null;
 
-    // convert timestamp to Date
-    return _stateChanges.map((stateChange) => {
-      return {
-        ...stateChange,
-        timestamp: new Date(stateChange.timestamp),
-      };
-    });
-  }, [_stateChanges]);
+  //   // convert timestamp to Date
+  //   return _stateChanges.map((stateChange) => {
+  //     return {
+  //       ...stateChange,
+  //       timestamp: new Date(stateChange.timestamp),
+  //     };
+  //   });
+  // }, [_stateChanges]);
 
   const tasks: RuntimeTask[] | null = useMemo(() => {
     if (!_tasks) return null;
@@ -58,11 +59,18 @@ export default function useTasks() {
   }, [tasks]);
 
   const addStateChange = (taskId: string, status: TaskStatus) => {
-    return _addStateChange({
+    pb.collection("stateChanges").create<StateChange>({
       task: taskId,
       status: status,
       timestamp: new Date(),
+      user: pb.authStore.model!.id,
     });
+
+    // return _addStateChange({
+    //   task: taskId,
+    //   status: status,
+    //   timestamp: new Date(),
+    // });
   };
 
   const evict = () => {
@@ -97,7 +105,7 @@ export default function useTasks() {
 
   return {
     tasks,
-    stateChanges,
+    // stateChanges,
     readyList,
     currentTask,
     schedule,

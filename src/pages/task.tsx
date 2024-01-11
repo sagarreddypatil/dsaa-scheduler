@@ -30,7 +30,7 @@ const formatDuration = (ms: number) => {
 export default function Task() {
   const navigate = useNavigate();
 
-  const { tasks, stateChanges, updateTask } = useTasks();
+  const { tasks, updateTask } = useTasks();
   const [editDesc, setEditDesc] = useState(false);
   const [newDesc, setNewDesc] = useState("");
   const { id } = useParams();
@@ -67,43 +67,43 @@ export default function Task() {
   if (!_task) return <h1>Task not found</h1>;
   const task = { ..._task, color: color };
 
-  if (!stateChanges) return <></>;
+  // if (!stateChanges) return <></>;
 
-  const taskChanges = stateChanges
-    .filter((change) => change.task === task.id)
-    .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  // const taskChanges = stateChanges
+  //   .filter((change) => change.task === task.id)
+  //   .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
-  const oldestChange = taskChanges[0];
-  const latestChange = taskChanges[taskChanges.length - 1];
+  // const oldestChange = taskChanges[0];
+  // const latestChange = taskChanges[taskChanges.length - 1];
 
-  let timeSpent = 0;
-  let previousChange = oldestChange;
+  // let timeSpent = 0;
+  // let previousChange = oldestChange;
 
-  for (let i = 0; i < taskChanges.length; i++) {
-    const change = taskChanges[i];
-    if (
-      previousChange.status === TaskStatus.CURRENT &&
-      change.status !== TaskStatus.CURRENT
-    ) {
-      timeSpent +=
-        change.timestamp.getTime() - previousChange.timestamp.getTime();
-    }
+  // for (let i = 0; i < taskChanges.length; i++) {
+  //   const change = taskChanges[i];
+  //   if (
+  //     previousChange.status === TaskStatus.CURRENT &&
+  //     change.status !== TaskStatus.CURRENT
+  //   ) {
+  //     timeSpent +=
+  //       change.timestamp.getTime() - previousChange.timestamp.getTime();
+  //   }
 
-    previousChange = change;
-  }
+  //   previousChange = change;
+  // }
 
-  timeSpent = Math.round(timeSpent / 1000);
+  // timeSpent = Math.round(timeSpent / 1000);
 
-  const prettyDuration = formatDuration(timeSpent * 1000);
+  // const prettyDuration = formatDuration(timeSpent * 1000);
 
-  const totalInterval =
-    latestChange.timestamp.getTime() - oldestChange.timestamp.getTime();
-  const daysSpent = Math.ceil(totalInterval / (1000 * 60 * 60 * 24));
+  // const totalInterval =
+  //   latestChange.timestamp.getTime() - oldestChange.timestamp.getTime();
+  // const daysSpent = Math.ceil(totalInterval / (1000 * 60 * 60 * 24));
 
-  const timePerDay = Math.round(timeSpent / daysSpent);
-  const timePerWeek = timePerDay * 7;
+  // const timePerDay = Math.round(timeSpent / daysSpent);
+  // const timePerWeek = timePerDay * 7;
 
-  const timePerWeekPretty = formatDuration(timePerWeek * 1000);
+  // const timePerWeekPretty = formatDuration(timePerWeek * 1000);
 
   const deleteTask = () => {
     const resp = confirm(
@@ -158,7 +158,7 @@ export default function Task() {
           <Markdown>{task.description}</Markdown>
         </div>
       )}
-      <h2 className="text-2xl font-bold">Statistics</h2>
+      {/* <h2 className="text-2xl font-bold">Statistics</h2>
       <hr className="border-gray-500" />
       You started this task at {oldestChange.timestamp.toLocaleString()}
       <div className="-my-1" />
@@ -169,7 +169,7 @@ export default function Task() {
       You've spent {prettyDuration} on this task, over the course of {daysSpent}{" "}
       day{daysSpent !== 1 ? "s" : ""}
       <div className="-my-1" />
-      On average, that's {timePerWeekPretty} per week
+      On average, that's {timePerWeekPretty} per week */}
       <h2 className="text-2xl font-bold">Pick Color</h2>
       <hr className="border-gray-500" />
       <HexColorPicker
@@ -190,13 +190,13 @@ export default function Task() {
         }}
         type="number"
       />
-      {/* <div className="h-2"></div>
+      <hr className="mt-8" />
       <Button
-        className="outline-red-500 text-red-500 hover:bg-red-500 h-8"
+        className="outline-2 outline-red-500 text-red-500 hover:bg-red-500 h-8"
         onClick={deleteTask}
       >
         Delete Permanently
-      </Button> */}
+      </Button>
     </div>
   );
 }
