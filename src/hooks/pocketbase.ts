@@ -114,20 +114,10 @@ export function usePbRecord<Type extends RecordBase>(
     };
   }, [collection, id]);
 
-  const setRecord = (newRecord: Type) => {
+  const setRecord = (newRecord: Partial<Type>) => {
     if (!id) {
       _setRecord(null);
       return;
-    }
-
-    // create if doesn't exist
-    if (!record) {
-      return pb
-        .collection(collection)
-        .create<Type>(newRecord as { [key: string]: any })
-        .catch((err) => {
-          console.error(err);
-        });
     }
 
     return pb

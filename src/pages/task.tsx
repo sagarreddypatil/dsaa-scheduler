@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import useTasks from "../hooks/useTasks";
 import TaskCard from "../components/task-card";
-import { TaskStatus, defaultTaskColor } from "../types/task";
+import { RuntimeTask, Task, TaskStatus, defaultTaskColor } from "../types/task";
 import { HexColorPicker } from "react-colorful";
 import { useEffect, useRef, useState } from "react";
 import { useDebounce } from "usehooks-ts";
@@ -10,6 +10,8 @@ import { pb } from "../Login";
 import Textbox from "../controls/textbox";
 import Markdown from "react-markdown";
 import { Select } from "../controls/select";
+import { usePbRecord } from "../hooks/pocketbase";
+import PrioritySelect from "../controls/priority-select";
 
 // from https://github.com/Chalarangelo/30-seconds-of-code/blob/master/content/snippets/js/s/format-duration.md
 const formatDuration = (ms: number) => {
@@ -27,44 +29,44 @@ const formatDuration = (ms: number) => {
     .join(", ");
 };
 
-export default function Task() {
+export default function TaskPage() {
   const navigate = useNavigate();
 
-  const { tasks, updateTask } = useTasks();
+  // const { tasks, updateTask } = useTasks();
   const [editDesc, setEditDesc] = useState(false);
-  const [newDesc, setNewDesc] = useState("");
+  const [newDesc, setNewDesc] = useState<string | null>(null);
   const { id } = useParams();
 
   const [color, setColor] = useState(defaultTaskColor);
   const debouncedColor = useDebounce(color, 500);
 
-  const _task = tasks && tasks.find((task) => task.id === id);
+  const [_task, setTask] = usePbRecord<RuntimeTask>("tasks", id ?? null);
+
+  // const _task = tasks && tasks.find((task) => task.id === id);
 
   useEffect(() => {
     if (editDesc) {
-      setNewDesc(_task?.description ?? "");
+      setNewDesc(_task?.description ?? null);
       return;
     }
 
-    // update task description
     if (!_task) return;
+    if (newDesc === null) return;
 
-    if (newDesc === undefined) return;
-
-    updateTask({ ..._task, description: newDesc });
+    setTask({ description: newDesc })?.then(() => setNewDesc(null));
   }, [editDesc]);
 
   useEffect(() => {
     if (_task?.color) setColor(_task.color);
-  }, [tasks]);
+  }, [_task]);
 
   useEffect(() => {
     // update task color
     if (!_task) return;
-    updateTask({ ..._task, color: color ?? defaultTaskColor });
+    setTask({ color: color ?? defaultTaskColor });
   }, [debouncedColor]);
 
-  if (!_task) return <h1>Task not found</h1>;
+  if (!_task || !id) return <h1>Task not found</h1>;
   const task = { ..._task, color: color };
 
   // if (!stateChanges) return <></>;
@@ -112,7 +114,7 @@ export default function Task() {
     if (!resp) return;
 
     pb.collection("tasks")
-      .delete(task.id)
+      .delete(id)
       .then(() => {
         navigate("/");
       });
@@ -180,15 +182,21 @@ export default function Task() {
       <div className="h-2"></div>
       <h2 className="text-2xl font-bold">Task Priority</h2>
       <hr className="border-gray-500" />
-      <Textbox
+      {/* <Textbox
         placeholder="Priority"
         value={task.priority.toString()}
         onChange={(newVal) => {
           const priority = parseInt(newVal);
           if (isNaN(priority)) return;
-          updateTask({ ...task, priority });
+          setTask({ priority });
         }}
         type="number"
+      /> */}
+      <PrioritySelect
+        value={task.priority}
+        onChange={(newVal) => {
+          setTask({ priority: newVal });
+        }}
       />
       <hr className="mt-8" />
       <Button

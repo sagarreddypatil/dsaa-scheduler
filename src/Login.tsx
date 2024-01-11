@@ -1,10 +1,10 @@
 import PocketBase from "pocketbase";
 
-const pbLocation = import.meta.env.PROD
-  ? window.location.origin
-  : "http://photon:8093";
+// const pbLocation = import.meta.env.PROD
+//   ? window.location.origin
+//   : "http://photon:8093";
 
-// const pbLocation = "https://dsaa-schd.fly.dev";
+const pbLocation = "https://dsaa-schd.fly.dev";
 
 export const pb = new PocketBase(pbLocation);
 
