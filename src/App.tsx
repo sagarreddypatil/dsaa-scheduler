@@ -3,7 +3,8 @@ import { pb } from "./Login";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "./controls/button";
 import { Dropdown, DropdownItem } from "./controls/dropdown";
-import { usePbRecord } from "./hooks/pocketbase";
+import {pbFetcher} from "./hooks/usePb";
+import useSWR from "swr";
 
 const VAPID_PUBLIC_KEY =
   "BAhQEypP3kzKm0J5Rqpb8EgW3UHni-9A-M5IrELV1OjS0QWkNleCv94BvDiCgMk2QZHz3Jt8M5q5s8ErlsZdG8M";
@@ -18,10 +19,15 @@ export default function App() {
   const navigate = useNavigate();
 
   const [loggedIn, setLoggedIn] = useState(false);
-  const [userRecord] = usePbRecord<User>(
-    "users",
-    loggedIn && pb.authStore.model ? pb.authStore.model!.id : null
-  );
+  // const [userRecord] = usePbRecord<User>(
+  //   "users",
+  //   loggedIn && pb.authStore.model ? pb.authStore.model!.id : null
+  // );
+
+  const userSWR = useSWR(['users', pb.authStore.model?.id], pbFetcher<User>);
+  const userRecord = userSWR.data;
+  // const userError = userSWR.error;
+  // const userLoading = userSWR.isLoading;
 
   const alreadySubscribed = useMemo(() => {
     if (!userRecord) return false;

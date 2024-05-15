@@ -17,14 +17,12 @@ export default function CreateTask() {
   const createTask = () => {
     const taskName = taskNameRef.current?.value;
     const description = descriptionRef.current?.value;
-    // const priority = priorityRef.current?.value;
 
     if (!taskName || !priority) return;
 
     addTask({
       title: taskName,
       description: description || "",
-      // priority: parseInt(priority),
       priority: priority,
     });
 
@@ -39,11 +37,6 @@ export default function CreateTask() {
         ref={descriptionRef}
         className="p-2 border border-black rounded-none text-lg"
       />
-      {/* <Textbox
-        placeholder="Priority (lower is more urgent)"
-        ref={priorityRef}
-        type="number"
-      /> */}
       <PrioritySelect prefix value={priority} onChange={setPriority} />
       <div className="flex flex-row gap-4">
         <Button

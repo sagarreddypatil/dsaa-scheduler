@@ -10,8 +10,8 @@ import { pb } from "../Login";
 import Textbox from "../controls/textbox";
 import Markdown from "react-markdown";
 import { Select } from "../controls/select";
-import { usePbRecord } from "../hooks/pocketbase";
 import PrioritySelect from "../controls/priority-select";
+import { usePbRecord } from "../hooks/usePb";
 
 // from https://github.com/Chalarangelo/30-seconds-of-code/blob/master/content/snippets/js/s/format-duration.md
 const formatDuration = (ms: number) => {

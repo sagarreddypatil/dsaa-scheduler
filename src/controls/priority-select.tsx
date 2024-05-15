@@ -22,7 +22,7 @@ export default function PrioritySelect({
         { length: MAX_PRIORITY - MIN_PRIORITY + 1 },
         (_, i) => i + MIN_PRIORITY
       ).map((i) => (
-        <option value={i}>
+        <option value={i} key={i}>
           {prefix ? "Priority " : ""}
           {i}
         </option>
