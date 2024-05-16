@@ -43,27 +43,6 @@ function pbSubscribe<T extends RecordBase>(
   return () => pb.collection(collection).unsubscribe(id);
 }
 
-function pbSubscribeMany<T extends RecordBase>(
-  collection: string,
-  { next }: { next: (error: any, data: T[] | ((prev: T[] | undefined) => T[])) => void }
-) {
-  pb.collection(collection).getFullList<T>().then((res) => {
-    next(null, res);
-  });
-
-  pb.collection(collection).subscribe<T>("*", (res) => {
-    if (res.action === "delete") {
-      next(null, (prev) => (prev ?? []).filter(item => item.id !== res.record.id));
-    } else if (res.action === "update") {
-      next(null, (prev) => (prev ?? []).map(item => item.id === res.record.id ? res.record : item));
-    } else if (res.action === "create") {
-      next(null, (prev) => (prev ?? []).concat(res.record));
-    }
-  });
-
-  return () => pb.collection(collection).unsubscribe();
-}
-
 export function usePbRecord<T extends RecordBase>(collection: string, id: string | null) {
   // @ts-ignore
   const { data, error } = useSWRSubscription<T, any, RecordLocation>([collection, id ?? undefined], pbSubscribe);
@@ -81,7 +60,25 @@ export function usePbRecord<T extends RecordBase>(collection: string, id: string
 }
 
 export function usePbRecords<T extends RecordBase>(collection: string) {
-  const { data, error } = useSWRSubscription<T[], any>(collection, pbSubscribeMany<T>);
+  const { data: initData } = useSWR<T[]>(collection, pbFetcherMany);
+
+  const { data, error } = useSWRSubscription<T[], any, string>(collection, (collection, { next }) => {
+    pb.collection(collection).getFullList<T>().then((res) => {
+      next(null, res);
+    });
+
+    pb.collection(collection).subscribe<T>("*", (res) => {
+      if (res.action === "delete") {
+        next(null, (initData ?? []).filter(item => item.id !== res.record.id));
+      } else if (res.action === "update") {
+        next(null, (initData ?? []).map(item => item.id === res.record.id ? res.record : item));
+      } else if (res.action === "create") {
+        next(null, (initData ?? []).concat(res.record));
+      }
+    });
+
+    return () => pb.collection(collection).unsubscribe();
+  });
 
   const createRecord = async (record: T) => {
     const newRecord = await pb.collection(collection).create({ ...record, user: pb.authStore.model!.id });

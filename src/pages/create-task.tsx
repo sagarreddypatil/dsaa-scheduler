@@ -24,9 +24,10 @@ export default function CreateTask() {
       title: taskName,
       description: description || "",
       priority: priority,
+    }).then(() => {
+      navigate("/");
     });
 
-    navigate("/");
   };
 
   return (
