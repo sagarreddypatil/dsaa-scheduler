@@ -4,7 +4,7 @@ import PocketBase from "pocketbase";
 //   ? window.location.origin
 //   : "http://photon:8093";
 
-const pbLocation = "https://dsaa-schd.fly.dev";
+const pbLocation = "https://schd.sagar.sh";
 
 export const pb = new PocketBase(pbLocation);
 
